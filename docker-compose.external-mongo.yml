@@ -9,7 +9,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://192.168.1.190:27017/lalogistics
+      - MONGODB_URI=mongodb://192.168.1.200:27017/lalogistics
       - SESSION_SECRET=${SESSION_SECRET:-LA2025-default-secret-key}
       - PORT=3000
     volumes:

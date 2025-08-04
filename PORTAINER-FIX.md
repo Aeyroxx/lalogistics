@@ -30,7 +30,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://192.168.1.190:27017/lalogistics
+      - MONGODB_URI=mongodb://192.168.1.200:27017/lalogistics
       - SESSION_SECRET=${SESSION_SECRET:-LA2025-default-secret-key}
       - PORT=3000
     volumes:
@@ -59,7 +59,7 @@ SESSION_SECRET=your-random-secret-key-here-change-this
 
 ## Prerequisites for External MongoDB
 
-Make sure your MongoDB server at `192.168.1.190`:
+Make sure your MongoDB server at `192.168.1.200`:
 1. **Is running** and accessible on port 27017
 2. **Allows connections** from your Portainer server IP
 3. **Has the database** `lalogistics` created (or MongoDB will create it automatically)
@@ -83,10 +83,10 @@ Make sure your MongoDB server at `192.168.1.190`:
 You can test the MongoDB connection from your Portainer server:
 ```bash
 # Test MongoDB connectivity
-telnet 192.168.1.190 27017
+telnet 192.168.1.200 27017
 
 # Or using mongosh if available
-mongosh mongodb://192.168.1.190:27017/lalogistics
+mongosh mongodb://192.168.1.200:27017/lalogistics
 ```
 
 ## What's Different in This Fix
