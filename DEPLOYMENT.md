@@ -43,7 +43,7 @@
 
 1. **Create Stack from Git**
    - Choose "Repository" option
-   - Repository URL: `https://github.com/your-username/lalogistics` (if you pushed to GitHub)
+   - Repository URL: `https://github.com/Aeyroxx/lalogistics`
    - Compose path: `docker-compose.yml`
 
 2. **Configure and Deploy**
@@ -56,7 +56,7 @@ If you prefer command line or have SSH access to your server:
 
 ```bash
 # 1. Clone or upload your project to the server
-git clone <your-repo-url> /opt/lalogistics
+git clone https://github.com/Aeyroxx/lalogistics.git /opt/lalogistics
 cd /opt/lalogistics
 
 # 2. Create environment file
