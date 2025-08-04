@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    build: https://github.com/Aeyroxx/lalogistics.git
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://192.168.1.200:27017/lalogistics
+      - SESSION_SECRET=LA2025-portainer-secret-key
+      - PORT=3000
+    volumes:
+      - app-uploads:/app/public/uploads
+    restart: unless-stopped
+
+volumes:
+  app-uploads:
