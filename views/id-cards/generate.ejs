@@ -1,0 +1,271 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-id-card me-2"></i>Generate ID Card</h2>
+        <a href="/employees" class="btn btn-secondary">
+          <i class="fas fa-arrow-left me-1"></i>Back to Employees
+        </a>
+      </div>
+
+      <% if (profile) { %>
+        <div class="row">
+          <!-- Employee Information -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-user me-2"></i>Employee Information</h5>
+              </div>
+              <div class="card-body">
+                <div class="text-center mb-3">
+                  <% if (profile.profilePicture) { %>
+                    <img src="/uploads/profile/<%= profile.profilePicture %>" 
+                         alt="Profile Picture" 
+                         class="rounded-circle"
+                         style="width: 120px; height: 120px; object-fit: cover;">
+                  <% } else { %>
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                         style="width: 120px; height: 120px; margin: 0 auto;">
+                      <i class="fas fa-user fa-3x text-muted"></i>
+                    </div>
+                  <% } %>
+                </div>
+                
+                <table class="table table-sm">
+                  <tr>
+                    <td><strong>Name:</strong></td>
+                    <td><%= user.name %></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Employee Number:</strong></td>
+                    <td><%= user.employeeNumber %></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Position:</strong></td>
+                    <td><%= profile.position %></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Department:</strong></td>
+                    <td><%= profile.department %></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Date Employed:</strong></td>
+                    <td><%= moment(profile.dateEmployed).format('MMMM DD, YYYY') %></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Emergency Contact:</strong></td>
+                    <td><%= profile.emergencyContact %></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ID Card Generation -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5><i class="fas fa-id-badge me-2"></i>ID Card Status</h5>
+              </div>
+              <div class="card-body">
+                <% if (idCard) { %>
+                  <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ID Card already generated
+                  </div>
+                  
+                  <div class="mb-3">
+                    <strong>Generated on:</strong> <%= moment(idCard.createdAt).format('MMMM DD, YYYY [at] h:mm A') %>
+                  </div>
+                  
+                  <% if (idCard.qrCodeImage) { %>
+                    <div class="text-center mb-3">
+                      <img src="/uploads/ids/<%= idCard.qrCodeImage %>" 
+                           alt="QR Code" 
+                           class="border"
+                           style="max-width: 150px;">
+                      <p class="small text-muted mt-2">QR Code for ID Card</p>
+                    </div>
+                  <% } %>
+                  
+                  <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary" onclick="regenerateQRCode()">
+                      <i class="fas fa-sync-alt me-2"></i>Regenerate QR Code
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="downloadIdCard()">
+                      <i class="fas fa-download me-2"></i>Download ID Card PDF
+                    </button>
+                  </div>
+                <% } else { %>
+                  <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No ID card generated yet
+                  </div>
+                  
+                  <p class="text-muted mb-3">
+                    Generate a QR code and ID card for this employee. The QR code will contain:
+                  </p>
+                  <ul class="small text-muted mb-3">
+                    <li>Employee name</li>
+                    <li>Last 4 digits of employee number</li>
+                    <li>Date of employment</li>
+                  </ul>
+                  
+                  <div class="d-grid">
+                    <button type="button" class="btn btn-primary" onclick="generateQRCode()">
+                      <i class="fas fa-qrcode me-2"></i>Generate QR Code & ID Card
+                    </button>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Employee profile not found
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mb-0">Generating ID Card...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple QR Code generation using the included QRCode.js library
+function showLoading() {
+  const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
+  modal.show();
+}
+
+function hideLoading() {
+  const modal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+  if (modal) modal.hide();
+}
+
+function generateQRCode() {
+  console.log('Generate QR Code button clicked');
+  
+  if (!confirm('Generate QR code and ID card for this employee?')) {
+    return;
+  }
+  
+  showLoading();
+  
+  // Generate QR code data
+  const employeeName = '<%= user.name %>';
+  const employeeNumber = '<%= user.employeeNumber %>';
+  const last4Digits = employeeNumber.slice(-4);
+  const startDate = '<%= moment(profile.dateEmployed).format("YYYY-MM-DD") %>';
+  
+  const qrData = `Name: ${employeeName}, ID: ${last4Digits}, Start: ${startDate}`;
+  
+  // Create a canvas element for the QR code
+  const canvas = document.createElement('canvas');
+  
+  // Generate QR code using QRCode.js
+  QRCode.toCanvas(canvas, qrData, {
+    width: 200,
+    margin: 1,
+    errorCorrectionLevel: 'H'
+  }, function(error) {
+    if (error) {
+      console.error('QR Code generation error:', error);
+      hideLoading();
+      alert('Error generating QR code: ' + error.message);
+      return;
+    }
+    
+    // Convert canvas to blob and send to server
+    canvas.toBlob(function(blob) {
+      const formData = new FormData();
+      formData.append('qrCode', blob, 'qrcode.png');
+      formData.append('qrData', qrData);
+      
+      fetch('/id-cards/generate-qr/<%= profile._id %>', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.message) {
+          alert(data.message);
+          location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'Failed to save QR code'));
+        }
+      })
+      .catch(error => {
+        hideLoading();
+        console.error('Error:', error);
+        alert('Network error occurred');
+      });
+    }, 'image/png');
+  });
+}
+
+function regenerateQRCode() {
+  if (!confirm('Regenerate QR code? This will replace the existing QR code.')) return;
+  generateQRCode();
+}
+
+function downloadIdCard() {
+  showLoading();
+  
+  // Create a temporary link to download the PDF
+  const link = document.createElement('a');
+  link.href = `/id-cards/download/<%= profile._id %>`;
+  link.download = `id-card-<%= user.employeeNumber %>.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  setTimeout(hideLoading, 1000);
+}
+</script>
+
+<style>
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+  background-color: var(--primary-color);
+  color: white;
+  border-bottom: none;
+}
+
+.table td {
+  border-top: 1px solid #dee2e6;
+  padding: 0.5rem;
+}
+
+.table td:first-child {
+  width: 40%;
+  background-color: #f8f9fa;
+}
+
+.btn {
+  border-radius: var(--border-radius-sm);
+}
+
+.alert {
+  border-radius: var(--border-radius-sm);
+}
+</style>

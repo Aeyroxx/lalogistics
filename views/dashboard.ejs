@@ -1,0 +1,220 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Dashboard</h1>
+    <p class="dashboard-subtitle">Welcome back, <%= user.name %></p>
+  </div>
+  
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <!-- Employee Count -->
+    <div class="card">
+      <div class="stat-card">
+        <div class="card-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Total Employees</div>
+          <div class="stat-value"><%= employeeCount %></div>
+          <div class="stat-change stat-increase">
+            <i class="fas fa-arrow-up me-1"></i> Active workforce
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Lost Parcels Count -->
+    <div class="card">
+      <div class="stat-card">
+        <div class="card-icon" style="background-color: rgba(231, 76, 60, 0.1); color: var(--danger-color);">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Lost Parcels</div>
+          <div class="stat-value"><%= lostParcelCount %></div>
+          <div class="stat-change <%= lostParcelCount > 0 ? 'stat-decrease' : 'stat-increase' %>">
+            <i class="fas <%= lostParcelCount > 0 ? 'fa-exclamation-circle' : 'fa-check-circle' %> me-1"></i> 
+            <%= lostParcelCount > 0 ? 'Needs attention' : 'All good' %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Today's Earnings -->
+    <div class="card">
+      <div class="stat-card">
+        <div class="card-icon" style="background-color: rgba(46, 204, 113, 0.1); color: var(--success-color);">
+          <i class="fas fa-coins"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Today's Earnings</div>
+          <div class="stat-value">₱<%= todayEarnings.toFixed(2) %></div>
+          <div class="stat-change stat-increase">
+            <i class="fas fa-calendar-day me-1"></i> Daily revenue
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Month's Earnings -->
+    <div class="card">
+      <div class="stat-card">
+        <div class="card-icon" style="background-color: rgba(52, 152, 219, 0.1); color: var(--info-color);">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Monthly Earnings</div>
+          <div class="stat-value">₱<%= monthEarnings.toFixed(2) %></div>
+          <div class="stat-change stat-increase">
+            <i class="fas fa-calendar-alt me-1"></i> Running total
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Quick Links -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-bolt me-2"></i> Quick Actions</h3>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <a href="/audit" class="card h-100 text-decoration-none">
+            <div class="card-body text-center py-4">
+              <div class="mb-3">
+                <i class="fas fa-plus-circle fa-3x text-primary"></i>
+              </div>
+              <h5 class="card-title mb-0">New Audit Entry</h5>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-3 mb-3">
+          <a href="/lost-parcels/add" class="card h-100 text-decoration-none">
+            <div class="card-body text-center py-4">
+              <div class="mb-3">
+                <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+              </div>
+              <h5 class="card-title mb-0">Log Lost Parcel</h5>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-3 mb-3">
+          <a href="/audit/reports" class="card h-100 text-decoration-none">
+            <div class="card-body text-center py-4">
+              <div class="mb-3">
+                <i class="fas fa-chart-bar fa-3x text-success"></i>
+              </div>
+              <h5 class="card-title mb-0">View Reports</h5>
+            </div>
+          </a>
+        </div>
+        <% if (user.role === 'admin') { %>
+        <div class="col-md-3 mb-3">
+          <a href="/employees" class="card h-100 text-decoration-none">
+            <div class="card-body text-center py-4">
+              <div class="mb-3">
+                <i class="fas fa-users-cog fa-3x text-secondary"></i>
+              </div>
+              <h5 class="card-title mb-0">Manage Employees</h5>
+            </div>
+          </a>
+        </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Activities -->
+  <div class="row mt-4">
+    <!-- Recent Audit Entries -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-clipboard-list mr-2"></i> Recent Audit Entries
+        </div>
+        <div class="card-body">
+          <% if (recentAudits && recentAudits.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Seller ID</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% recentAudits.forEach(audit => { %>
+                    <tr>
+                      <td><%= moment(audit.date).format('MMM D, YYYY') %></td>
+                      <td><%= audit.sellerId %></td>
+                      <td>
+                        <% if (audit.courierType === 'SPX') { %>
+                          <span class="badge badge-primary">SPX</span>
+                        <% } else { %>
+                          <span class="badge badge-danger">Flash</span>
+                        <% } %>
+                      </td>
+                      <td>₱<%= audit.calculatedEarnings.toFixed(2) %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <div class="text-center mt-3">
+              <a href="/audit/list" class="btn btn-sm btn-outline-primary">View All Entries</a>
+            </div>
+          <% } else { %>
+            <p class="text-center my-4">No recent audit entries found.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Lost Parcels -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-box mr-2"></i> Recent Lost Parcels
+        </div>
+        <div class="card-body">
+          <% if (recentLostParcels && recentLostParcels.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Tracking #</th>
+                    <th>Courier</th>
+                    <th>Sender</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% recentLostParcels.forEach(parcel => { %>
+                    <tr>
+                      <td><%= moment(parcel.dateTimeScanned).format('MMM D, YYYY') %></td>
+                      <td><%= parcel.trackingNumber %></td>
+                      <td>
+                        <span class="badge <%= parcel.courier === 'SPX' ? 'badge-primary' : 'badge-danger' %>">
+                          <%= parcel.courier %>
+                        </span>
+                      </td>
+                      <td><%= parcel.senderName %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <div class="text-center mt-3">
+              <a href="/lost-parcels" class="btn btn-sm btn-outline-primary">View All Lost Parcels</a>
+            </div>
+          <% } else { %>
+            <p class="text-center my-4">No recent lost parcels found.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

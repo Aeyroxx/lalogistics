@@ -1,0 +1,160 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-eye me-2"></i> 
+            <%= type.toUpperCase() %> Audit Entry
+          </h3>
+          <div class="ms-auto">
+            <% if (user.role === 'admin') { %>
+              <a href="/audit/<%= type %>/<%= audit._id %>/edit" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-edit me-1"></i> Edit
+              </a>
+              <button class="btn btn-danger btn-sm" onclick="deleteAudit('<%= type %>', '<%= audit._id %>')">
+                <i class="fas fa-trash me-1"></i> Delete
+              </button>
+            <% } %>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h5>Basic Information</h5>
+              <table class="table table-borderless">
+                <tr>
+                  <td><strong>Date:</strong></td>
+                  <td><%= moment(audit.date).format('MMMM D, YYYY') %></td>
+                </tr>
+                <tr>
+                  <td><strong>Courier Type:</strong></td>
+                  <td><%= type.toUpperCase() %></td>
+                </tr>
+                <tr>
+                  <td><strong>Task ID:</strong></td>
+                  <td><%= audit.taskId %></td>
+                </tr>
+                <tr>
+                  <td><strong>Seller ID:</strong></td>
+                  <td><%= audit.sellerId %></td>
+                </tr>
+                <% if (type === 'spx') { %>
+                  <tr>
+                    <td><strong>Shop ID:</strong></td>
+                    <td><%= audit.shopId %></td>
+                  </tr>
+                <% } %>
+                <tr>
+                  <td><strong>Number of Parcels:</strong></td>
+                  <td><%= audit.numberOfParcels %></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h5>Financial Details</h5>
+              <table class="table table-borderless">
+                <tr>
+                  <td><strong>Calculated Earnings:</strong></td>
+                  <td class="text-success"><strong>₱<%= (audit.calculatedEarnings || 0).toFixed(2) %></strong></td>
+                </tr>
+                <% if (audit.amount && audit.amount > 0) { %>
+                  <tr>
+                    <td><strong>Manual Amount:</strong></td>
+                    <td>₱<%= audit.amount.toFixed(2) %></td>
+                  </tr>
+                <% } %>
+                <% if (type === 'spx') { %>
+                  <% if (audit.baseRate) { %>
+                    <tr>
+                      <td><strong>Base Rate:</strong></td>
+                      <td>₱<%= audit.baseRate.toFixed(2) %></td>
+                    </tr>
+                  <% } %>
+                  <% if (audit.bonusRate) { %>
+                    <tr>
+                      <td><strong>Bonus Rate:</strong></td>
+                      <td>₱<%= audit.bonusRate.toFixed(2) %></td>
+                    </tr>
+                  <% } %>
+                  <% if (audit.penalties) { %>
+                    <tr>
+                      <td><strong>Penalties:</strong></td>
+                      <td class="text-danger">-₱<%= audit.penalties.toFixed(2) %></td>
+                    </tr>
+                  <% } %>
+                  <tr>
+                    <td><strong>Handed Over Within SLA:</strong></td>
+                    <td>
+                      <% if (audit.handedOverWithinSLA) { %>
+                        <span class="badge bg-success">Yes</span>
+                      <% } else { %>
+                        <span class="badge bg-warning">No</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% } %>
+              </table>
+            </div>
+          </div>
+          
+          <% if (audit.notes) { %>
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <h5>Notes</h5>
+                <div class="alert alert-info">
+                  <%= audit.notes %>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <h5>Audit Information</h5>
+              <table class="table table-borderless">
+                <tr>
+                  <td><strong>Created By:</strong></td>
+                  <td><%= audit.createdBy ? audit.createdBy.name : 'Unknown' %></td>
+                </tr>
+                <tr>
+                  <td><strong>Created At:</strong></td>
+                  <td><%= moment(audit.createdAt).format('MMMM D, YYYY [at] h:mm A') %></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="/audit/list" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to List
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function deleteAudit(type, id) {
+  if (confirm('Are you sure you want to delete this audit entry? This action cannot be undone.')) {
+    fetch(`/audit/${type}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message) {
+        alert(data.message);
+        window.location.href = '/audit/list';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error deleting audit entry');
+    });
+  }
+}
+</script>

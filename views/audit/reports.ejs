@@ -1,0 +1,171 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-chart-bar me-2"></i> Reports</h3>
+        </div>
+        <div class="card-body">
+          <div class="report-filters">
+            <form method="GET" action="/audit/reports">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="period" class="form-label">Report Type</label>
+                    <select id="period" name="period" class="form-control">
+                      <option value="daily" <%= (period === 'daily' || reportType === 'daily') ? 'selected' : '' %>>Daily</option>
+                      <option value="weekly" <%= (period === 'weekly' || reportType === 'weekly') ? 'selected' : '' %>>Weekly</option>
+                      <option value="monthly" <%= (period === 'monthly' || reportType === 'monthly') ? 'selected' : '' %>>Monthly</option>
+                      <option value="quarterly" <%= (period === 'quarterly' || reportType === 'quarterly') ? 'selected' : '' %>>Quarterly</option>
+                      <option value="yearly" <%= (period === 'yearly' || reportType === 'yearly') ? 'selected' : '' %>>Yearly</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="type" class="form-label">Courier Type</label>
+                    <select id="type" name="type" class="form-control">
+                      <option value="">All Couriers</option>
+                      <option value="spx" <%= (type === 'spx' || courierType === 'SPX') ? 'selected' : '' %>>SPX Express</option>
+                      <option value="flash" <%= (type === 'flash' || courierType === 'Flash') ? 'selected' : '' %>>Flash Express</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i> Generate Report
+                  </button>
+                  <button type="button" class="btn btn-success ms-2" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel me-2"></i> Export to Excel
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <% if (typeof reportData !== 'undefined' && reportData) { %>
+            <div class="report-summary">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="audit-summary-item">
+                    <div class="audit-summary-label">Total Entries</div>
+                    <div class="audit-summary-value"><%= reportData.totalEntries || 0 %></div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="audit-summary-item">
+                    <div class="audit-summary-label">Total Parcels</div>
+                    <div class="audit-summary-value"><%= reportData.totalParcels || 0 %></div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="audit-summary-item">
+                    <div class="audit-summary-label">Delivered Parcels</div>
+                    <div class="audit-summary-value text-success"><%= reportData.deliveredParcels || 0 %></div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="audit-summary-item">
+                    <div class="audit-summary-label">Total Earnings</div>
+                    <div class="audit-summary-value text-primary">₱<%= reportData.totalEarnings ? reportData.totalEarnings.toFixed(2) : '0.00' %></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="card-title">Earnings Chart</h5>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="earningsChart" width="400" height="200"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="card-title">Parcel Distribution</h5>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="parcelChart" width="400" height="200"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="text-center py-5">
+              <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No data to display</h5>
+              <p class="text-muted">Select your report parameters and click "Generate Report" to view data.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function exportToExcel() {
+  // Implementation for Excel export
+  alert('Excel export feature will be implemented soon!');
+}
+
+<% if (typeof reportData !== 'undefined' && reportData && reportData.chartData) { %>
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+  // Earnings Chart
+  const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+  new Chart(earningsCtx, {
+    type: 'line',
+    data: {
+      labels: <%- JSON.stringify(reportData.chartData.labels) %>,
+      datasets: [{
+        label: 'Earnings (₱)',
+        data: <%- JSON.stringify(reportData.chartData.earnings) %>,
+        borderColor: 'rgb(67, 97, 238)',
+        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // Parcel Distribution Chart
+  const parcelCtx = document.getElementById('parcelChart').getContext('2d');
+  new Chart(parcelCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Delivered', 'Failed', 'Returned'],
+      datasets: [{
+        data: [
+          <%= reportData.deliveredParcels || 0 %>,
+          <%= reportData.failedDeliveries || 0 %>,
+          <%= reportData.returnedParcels || 0 %>
+        ],
+        backgroundColor: [
+          'rgba(46, 204, 113, 0.8)',
+          'rgba(231, 76, 60, 0.8)',
+          'rgba(243, 156, 18, 0.8)'
+        ]
+      }]
+    },
+    options: {
+      responsive: true
+    }
+  });
+});
+<% } %>
+</script>

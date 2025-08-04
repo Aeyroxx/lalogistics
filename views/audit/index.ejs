@@ -1,0 +1,169 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-plus-circle me-2"></i> New Audit Entry</h3>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/audit">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="courierType" class="form-label">Courier Type</label>
+                  <select id="courierType" name="courierType" class="form-control" required>
+                    <option value="">Select Courier Type</option>
+                    <option value="SPX">SPX Express</option>
+                    <option value="Flash">Flash Express</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="date" class="form-label">Date</label>
+                  <input type="date" id="date" name="date" class="form-control date-picker" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Common Fields for All Courier Types -->
+            <div id="commonFields">
+              <h5 class="mt-4 mb-3">Parcel Details</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="taskId" class="form-label">Task ID / Reference ID <span class="text-danger">*</span></label>
+                    <input type="text" id="taskId" name="taskId" class="form-control" placeholder="Enter Task ID or Reference ID" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="sellerId" class="form-label">Seller ID / Agent ID <span class="text-danger">*</span></label>
+                    <input type="text" id="sellerId" name="sellerId" class="form-control" placeholder="Enter Seller ID or Agent ID" required>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="shopId" class="form-label">Shop ID / Store ID <span class="text-danger">*</span></label>
+                    <input type="text" id="shopId" name="shopId" class="form-control" placeholder="Enter Shop ID or Store ID" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="numberOfParcels" class="form-label">Number of Parcels <span class="text-danger">*</span></label>
+                    <input type="number" id="numberOfParcels" name="numberOfParcels" class="form-control" min="1" placeholder="Enter number of parcels" required>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <div class="form-check">
+                      <input type="checkbox" id="handedOverWithinSLA" name="handedOverWithinSLA" class="form-check-input" value="true">
+                      <label for="handedOverWithinSLA" class="form-check-label">
+                        Handed over within SLA / On Time Delivery
+                        <small class="text-muted d-block">Check if parcels were delivered/handed over on time for bonus rate</small>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="penalties" class="form-label">Penalties (₱)</label>
+                    <input type="number" id="penalties" name="penalties" class="form-control" min="0" step="0.01" placeholder="0.00">
+                    <small class="text-muted">Any penalty deductions applied</small>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label for="amount" class="form-label">Amount (₱)</label>
+                    <input type="number" id="amount" name="amount" class="form-control" min="0" step="0.01" placeholder="0.00">
+                    <small class="text-muted">Optional: Manual amount override (leave blank for auto-calculation)</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SPX Specific Information (shown when SPX is selected) -->
+            <div id="spxInfo" style="display: none;">
+              <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle me-1"></i> 2025 SPX Commercial Terms</h6>
+                <ul class="mb-0 small">
+                  <li><strong>Base Rate:</strong> ₱0.50 for first 100 parcels per Shop ID</li>
+                  <li><strong>Bonus Rate:</strong> Same as Base Rate if handed over within SLA</li>
+                  <li><strong>Order Cap:</strong> Only first 100 parcels per Shop ID per day qualify</li>
+                  <li><strong>SLA:</strong> All parcels must be handed over same day</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Flash Express Specific Information (shown when Flash is selected) -->
+            <div id="flashInfo" style="display: none;">
+              <div class="alert alert-success">
+                <h6><i class="fas fa-truck me-1"></i> Flash Express Terms</h6>
+                <ul class="mb-0 small">
+                  <li><strong>Payment:</strong> Based on delivered parcels</li>
+                  <li><strong>SLA:</strong> On-time delivery for bonus rates</li>
+                  <li><strong>Tracking:</strong> Use Task ID for parcel tracking</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="notes" class="form-label">Notes (Optional)</label>
+              <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Any additional notes or comments..."></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="/audit/list" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to List
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i> Save Audit Entry
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const courierTypeSelect = document.getElementById('courierType');
+  const spxInfo = document.getElementById('spxInfo');
+  const flashInfo = document.getElementById('flashInfo');
+  const commonFields = document.getElementById('commonFields');
+  
+  // Show common fields by default
+  commonFields.style.display = 'block';
+  
+  courierTypeSelect.addEventListener('change', function() {
+    const selectedType = this.value;
+    
+    if (selectedType === 'SPX') {
+      spxInfo.style.display = 'block';
+      flashInfo.style.display = 'none';
+      
+      // All fields are already required by default
+    } else if (selectedType === 'Flash') {
+      spxInfo.style.display = 'none';
+      flashInfo.style.display = 'block';
+      
+      // Keep the same fields for Flash Express
+    } else {
+      spxInfo.style.display = 'none';
+      flashInfo.style.display = 'none';
+    }
+  });
+  
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('date').value = today;
+});
+</script>

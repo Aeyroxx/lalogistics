@@ -1,0 +1,105 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-users me-2"></i> Employee Management</h3>
+          <% if (user.role === 'admin') { %>
+            <div class="ms-auto">
+              <a href="/employees/new" class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i> Add Employee
+              </a>
+            </div>
+          <% } %>
+        </div>
+        <div class="card-body">
+          <% if (employees && employees.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Employee Number</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Start Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% employees.forEach(employee => { %>
+                    <tr>
+                      <td>
+                        <% if (employee.photo) { %>
+                          <img src="<%= employee.photo %>" alt="<%= employee.name %>" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                        <% } else { %>
+                          <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                          </div>
+                        <% } %>
+                      </td>
+                      <td>
+                        <strong><%= employee.name %></strong>
+                      </td>
+                      <td>
+                        <% if (employee.employeeNumber) { %>
+                          <span class="badge bg-secondary"><%= employee.employeeNumber %></span>
+                        <% } else { %>
+                          <span class="text-muted">N/A</span>
+                        <% } %>
+                      </td>
+                      <td><%= employee.email %></td>
+                      <td><%= employee.phone || 'N/A' %></td>
+                      <td><%= employee.position || 'N/A' %></td>
+                      <td><%= employee.department || 'N/A' %></td>
+                      <td><%= employee.startDate ? new Date(employee.startDate).toLocaleDateString() : 'N/A' %></td>
+                      <td>
+                        <span class="badge badge-<%= employee.status === 'active' ? 'success' : employee.status === 'inactive' ? 'danger' : 'warning' %>">
+                          <%= employee.status ? employee.status.charAt(0).toUpperCase() + employee.status.slice(1) : 'Active' %>
+                        </span>
+                      </td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <a href="/employees/<%= employee._id %>" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                          </a>
+                          <% if (user.role === 'admin' || user._id.toString() === employee._id.toString()) { %>
+                            <a href="/employees/<%= employee._id %>/edit" class="btn btn-sm btn-outline-secondary">
+                              <i class="fas fa-edit"></i>
+                            </a>
+                          <% } %>
+                          <% if (user.role === 'admin') { %>
+                            <button class="btn btn-sm btn-outline-danger delete-btn" data-id="<%= employee._id %>">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          <% } %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="text-center py-5">
+              <i class="fas fa-users fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No employees found</h5>
+              <% if (user.role === 'admin') { %>
+                <p class="text-muted">Start by adding your first employee.</p>
+                <a href="/employees/new" class="btn btn-primary">
+                  <i class="fas fa-user-plus me-2"></i> Add First Employee
+                </a>
+              <% } else { %>
+                <p class="text-muted">Contact your administrator to add employees.</p>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

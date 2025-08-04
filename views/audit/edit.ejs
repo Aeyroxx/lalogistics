@@ -1,0 +1,181 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="dashboard-title">Edit Audit Entry</h1>
+      <p class="dashboard-subtitle">Update audit information</p>
+    </div>
+    <a href="/audit/list" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Back to List
+    </a>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-edit me-2"></i> Edit Audit Entry
+          </h5>
+        </div>
+        <div class="card-body">
+          <form action="/audit/<%= audit._id %>" method="POST">
+            <input type="hidden" name="_method" value="PUT">
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="courier" class="form-label">Courier *</label>
+                  <select id="courier" name="courier" class="form-control" required>
+                    <option value="">Select Courier</option>
+                    <option value="SPX" <%= audit.courier === 'SPX' ? 'selected' : '' %>>SPX</option>
+                    <option value="FlashExpress" <%= audit.courier === 'FlashExpress' ? 'selected' : '' %>>Flash Express</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="employeeNumber" class="form-label">Employee Number *</label>
+                  <input type="text" id="employeeNumber" name="employeeNumber" class="form-control" 
+                         value="<%= audit.employeeNumber %>" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="auditDate" class="form-label">Audit Date *</label>
+                  <input type="date" id="auditDate" name="auditDate" class="form-control" 
+                         value="<%= audit.auditDate ? audit.auditDate.toISOString().split('T')[0] : '' %>" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="sellerId" class="form-label">Seller ID *</label>
+                  <input type="text" id="sellerId" name="sellerId" class="form-control" 
+                         value="<%= audit.sellerId %>" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="totalParcels" class="form-label">Total Parcels *</label>
+                  <input type="number" id="totalParcels" name="totalParcels" class="form-control" 
+                         value="<%= audit.totalParcels %>" min="0" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="slaCompliance" class="form-label">SLA Compliance</label>
+                  <select id="slaCompliance" name="slaCompliance" class="form-control">
+                    <option value="true" <%= audit.slaCompliance === true ? 'selected' : '' %>>Yes</option>
+                    <option value="false" <%= audit.slaCompliance === false ? 'selected' : '' %>>No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <% if (audit.courier === 'SPX') { %>
+            <div class="row" id="spxFields">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="baseRate" class="form-label">Base Rate</label>
+                  <input type="number" id="baseRate" name="baseRate" class="form-control" 
+                         value="<%= audit.baseRate || 0.50 %>" step="0.01" min="0">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="bonusAmount" class="form-label">Bonus Amount</label>
+                  <input type="number" id="bonusAmount" name="bonusAmount" class="form-control" 
+                         value="<%= audit.bonusAmount || 0 %>" step="0.01" min="0">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="penalties" class="form-label">Penalties</label>
+                  <input type="number" id="penalties" name="penalties" class="form-control" 
+                         value="<%= audit.penalties || 0 %>" step="0.01" min="0">
+                </div>
+              </div>
+            </div>
+            <% } %>
+
+            <div class="form-group">
+              <label for="notes" class="form-label">Notes</label>
+              <textarea id="notes" name="notes" class="form-control" rows="3" 
+                        placeholder="Additional notes or comments"><%= audit.notes || '' %></textarea>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <a href="/audit/list" class="btn btn-secondary me-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i> Update Audit Entry
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i> Audit Information
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <strong>Current Earnings:</strong><br>
+            <span class="h5 text-success">₱<%= audit.calculatedEarnings ? audit.calculatedEarnings.toFixed(2) : '0.00' %></span>
+          </div>
+          
+          <div class="mb-3">
+            <strong>Created:</strong><br>
+            <small class="text-muted">
+              <%= audit.createdAt ? audit.createdAt.toLocaleDateString() : 'N/A' %>
+            </small>
+          </div>
+          
+          <div class="mb-3">
+            <strong>Last Updated:</strong><br>
+            <small class="text-muted">
+              <%= audit.updatedAt ? audit.updatedAt.toLocaleDateString() : 'N/A' %>
+            </small>
+          </div>
+
+          <hr>
+          <h6>Calculation Rules</h6>
+          <% if (audit.courier === 'SPX') { %>
+            <small class="text-muted">
+              • Base Rate: ₱0.50 per parcel<br>
+              • Maximum: 100 parcels<br>
+              • SLA Bonus: Variable<br>
+              • Penalties: Deducted from total
+            </small>
+          <% } else if (audit.courier === 'FlashExpress') { %>
+            <small class="text-muted">
+              • Rate: ₱3.00 per parcel<br>
+              • Maximum: 30 parcels per seller
+            </small>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Handle courier change to show/hide SPX specific fields
+document.getElementById('courier').addEventListener('change', function() {
+  const spxFields = document.getElementById('spxFields');
+  if (this.value === 'SPX') {
+    if (spxFields) spxFields.style.display = 'block';
+  } else {
+    if (spxFields) spxFields.style.display = 'none';
+  }
+});
+</script>

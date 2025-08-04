@@ -1,0 +1,128 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i> Log Lost Parcel</h3>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/lost-parcels" id="lost-parcel-form">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="trackingNumber" class="form-label">Tracking Number</label>
+                  <input type="text" id="trackingNumber" name="trackingNumber" class="form-control" required placeholder="Enter tracking number">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="courierType" class="form-label">Courier Type</label>
+                  <select id="courierType" name="courierType" class="form-control" required>
+                    <option value="">Select Courier Type</option>
+                    <option value="SPX">SPX Express</option>
+                    <option value="Flash Express">Flash Express</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="customerName" class="form-label">Customer Name</label>
+                  <input type="text" id="customerName" name="customerName" class="form-control" required placeholder="Enter customer name">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="customerPhone" class="form-label">Customer Phone</label>
+                  <input type="tel" id="customerPhone" name="customerPhone" class="form-control" placeholder="Enter customer phone number">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="customerAddress" class="form-label">Customer Address</label>
+              <textarea id="customerAddress" name="customerAddress" class="form-control" rows="3" required placeholder="Enter complete delivery address"></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="lastKnownLocation" class="form-label">Last Known Location</label>
+                  <input type="text" id="lastKnownLocation" name="lastKnownLocation" class="form-control" placeholder="Where was the parcel last seen?">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="dateReported" class="form-label">Date Reported</label>
+                  <input type="date" id="dateReported" name="dateReported" class="form-control" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="estimatedValue" class="form-label">Estimated Value (₱)</label>
+                  <input type="number" id="estimatedValue" name="estimatedValue" class="form-control" min="0" step="0.01" placeholder="0.00">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-3">
+                  <label for="status" class="form-label">Status</label>
+                  <select id="status" name="status" class="form-control" required>
+                    <option value="reported">Reported</option>
+                    <option value="investigating">Under Investigation</option>
+                    <option value="found">Found</option>
+                    <option value="lost">Confirmed Lost</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe the parcel contents, size, packaging, etc."></textarea>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="notes" class="form-label">Additional Notes</label>
+              <textarea id="notes" name="notes" class="form-control" rows="2" placeholder="Any additional information or circumstances..."></textarea>
+            </div>
+
+            <!-- Barcode Display -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group mb-3">
+                  <label class="form-label">Generated Barcode</label>
+                  <div class="text-center p-3 border rounded">
+                    <svg id="barcode"></svg>
+                    <input type="hidden" id="barcodeData" name="barcodeData">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="/lost-parcels" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to List
+              </a>
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-save me-2"></i> Log Lost Parcel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dateReported').value = today;
+});
+</script>
