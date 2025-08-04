@@ -1,17 +1,6 @@
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo:6.0
-    container_name: lalogistics-mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: lalogistics
-    volumes:
-      - mongo-data:/data/db
-
   lalogistics-app:
     build: .
     container_name: lalogistics-web
@@ -20,25 +9,11 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      MONGODB_URI: mongodb://mongo:27017/lalogistics
+      MONGODB_URI: mongodb://192.168.1.190:27017/lalogistics
       SESSION_SECRET: ${SESSION_SECRET:-your-random-secret-key-here}
       PORT: 3000
     volumes:
       - uploads-data:/app/public/uploads
 
-  mongo-express:
-    image: mongo-express:latest
-    container_name: lalogistics-mongo-admin
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: admin123
-
 volumes:
-  mongo-data:
   uploads-data:

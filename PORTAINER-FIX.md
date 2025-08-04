@@ -1,72 +1,42 @@
 # Portainer Deployment Fix Guide
 
 ## Problem
-MongoDB container is marked as "unhealthy" causing deployment failure.
+Using external MongoDB server instead of deploying MongoDB container.
 
-## Quick Fix Steps
+## Quick Fix Steps for External MongoDB
 
 ### Step 1: Delete Current Stack
 1. In Portainer, go to "Stacks"
 2. Select your "lalogistics" stack
 3. Click "Delete" to remove it completely
 
-### Step 2: Clean Up Volumes (Optional but Recommended)
-1. Go to "Volumes" in Portainer
-2. Delete any volumes starting with "lalogistics" if they exist
-3. This ensures a clean start
+### Step 2: Create New Stack with External MongoDB
 
-### Step 3: Create New Stack with Fixed Configuration
-
-**Option A: Use Web Editor**
+**Option A: Use Web Editor (Recommended)**
 1. Click "Add stack"
 2. Name it: `lalogistics`
 3. Choose "Web editor"
-4. Copy and paste this simplified configuration:
+4. Copy and paste this configuration:
 
 ```yaml
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo:6.0
-    container_name: lalogistics-mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: lalogistics
-    volumes:
-      - mongo-data:/data/db
-
   lalogistics-app:
-    build: .
+    build: https://github.com/Aeyroxx/lalogistics.git
     container_name: lalogistics-web
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      NODE_ENV: production
-      MONGODB_URI: mongodb://mongo:27017/lalogistics
-      SESSION_SECRET: your-random-secret-key-here-change-this
-      PORT: 3000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://192.168.1.190:27017/lalogistics
+      - SESSION_SECRET=${SESSION_SECRET:-LA2025-default-secret-key}
+      - PORT=3000
     volumes:
       - uploads-data:/app/public/uploads
 
-  mongo-express:
-    image: mongo-express:latest
-    container_name: lalogistics-mongo-admin
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: admin123
-
 volumes:
-  mongo-data:
   uploads-data:
 ```
 
@@ -75,17 +45,49 @@ volumes:
 2. Name it: `lalogistics`
 3. Choose "Repository"
 4. Repository URL: `https://github.com/Aeyroxx/lalogistics`
-5. Compose path: `docker-compose.portainer.yml`
+5. Compose path: `docker-compose.external-mongo.yml`
 
-### Step 4: Configure Environment Variables
+### Step 3: Configure Environment Variables
 In the "Environment variables" section, add:
 ```
 SESSION_SECRET=your-random-secret-key-here-change-this
 ```
 
-### Step 5: Deploy
+### Step 4: Deploy
 1. Click "Deploy the stack"
-2. Wait for containers to start (this may take 2-3 minutes for the first build)
+2. Wait for container to build and start (2-3 minutes for first build)
+
+## Prerequisites for External MongoDB
+
+Make sure your MongoDB server at `192.168.1.190`:
+1. **Is running** and accessible on port 27017
+2. **Allows connections** from your Portainer server IP
+3. **Has the database** `lalogistics` created (or MongoDB will create it automatically)
+4. **Firewall allows** connections on port 27017
+
+## Benefits of External MongoDB
+
+1. **No container management** - MongoDB runs independently
+2. **Better performance** - Dedicated MongoDB server
+3. **Easier backups** - Direct access to MongoDB
+4. **Simplified deployment** - Only one container to manage
+
+## Verification Steps
+
+1. Check container status in Portainer - should show "running"
+2. View container logs to ensure no MongoDB connection errors
+3. Test the application: `http://192.168.1.200:3000`
+
+## MongoDB Connection Test
+
+You can test the MongoDB connection from your Portainer server:
+```bash
+# Test MongoDB connectivity
+telnet 192.168.1.190 27017
+
+# Or using mongosh if available
+mongosh mongodb://192.168.1.190:27017/lalogistics
+```
 
 ## What's Different in This Fix
 
