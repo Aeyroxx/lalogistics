@@ -40,7 +40,7 @@
             name="email" 
             class="form-control form-control-lg" 
             required 
-            value="<%= email %>"
+            value="<%= typeof email !== 'undefined' ? email : '' %>"
             placeholder="Enter your email"
           >
         </div>

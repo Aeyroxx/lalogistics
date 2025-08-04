@@ -157,19 +157,21 @@ const getAuditList = async (req, res) => {
   try {
     const { type, startDate, endDate } = req.query;
     
-    // Default to current month if no dates provided
-    const start = startDate ? moment(startDate).startOf('day').toDate() : moment().startOf('month').toDate();
-    const end = endDate ? moment(endDate).endOf('day').toDate() : moment().endOf('month').toDate();
+    // If no date range specified, show ALL audit entries (no date filter)
+    let query = {};
+    if (startDate || endDate) {
+      const start = startDate ? moment(startDate).startOf('day').toDate() : moment().startOf('year').toDate();
+      const end = endDate ? moment(endDate).endOf('day').toDate() : moment().endOf('year').toDate();
+      
+      query = {
+        date: {
+          $gte: start,
+          $lte: end
+        }
+      };
+    }
     
-    // Define query
-    const query = {
-      date: {
-        $gte: start,
-        $lte: end
-      }
-    };
-    
-    let audits;
+    let audits = [];
     let totalEarnings = 0;
     
     if (type === 'flash' || !type) {
@@ -195,7 +197,7 @@ const getAuditList = async (req, res) => {
         totalEarnings = spxAudits.reduce((sum, audit) => sum + audit.calculatedEarnings, 0);
       } else {
         // Combine with Flash Express results
-        audits = [...(audits || []), ...spxAudits.map(audit => ({ ...audit, courierType: 'spx' }))];
+        audits = [...audits, ...spxAudits.map(audit => ({ ...audit, courierType: 'spx' }))];
         totalEarnings += spxAudits.reduce((sum, audit) => sum + (audit.calculatedEarnings || 0), 0);
       }
     }
@@ -204,12 +206,16 @@ const getAuditList = async (req, res) => {
     if (!type) {
       audits.sort((a, b) => new Date(b.date) - new Date(a.date));
     }
-    
+
+    // Set display dates for the template
+    const displayStartDate = startDate ? moment(startDate).format('YYYY-MM-DD') : '';
+    const displayEndDate = endDate ? moment(endDate).format('YYYY-MM-DD') : '';
+
     res.render('audit/list', {
       audits,
       type: type || 'all',
-      startDate: moment(start).format('YYYY-MM-DD'),
-      endDate: moment(end).format('YYYY-MM-DD'),
+      startDate: displayStartDate,
+      endDate: displayEndDate,
       totalEarnings,
       user: req.user,
       moment
