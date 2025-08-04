@@ -1,6 +1,9 @@
 # Use Node.js 18 as base image
 FROM node:18-alpine
 
+# Install curl for health checks and mongo client for connectivity checks
+RUN apk add --no-cache curl
+
 # Set working directory in container
 WORKDIR /app
 
@@ -12,6 +15,10 @@ RUN npm ci --only=production
 
 # Copy the rest of the application code
 COPY . .
+
+# Copy and make wait script executable
+COPY wait-for-mongo.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/wait-for-mongo.sh
 
 # Create uploads directory and set permissions
 RUN mkdir -p public/uploads/profile public/uploads/ids public/uploads && \

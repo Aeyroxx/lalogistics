@@ -44,11 +44,25 @@
 1. **Create Stack from Git**
    - Choose "Repository" option
    - Repository URL: `https://github.com/Aeyroxx/lalogistics`
-   - Compose path: `docker-compose.yml`
+   - Compose path: `docker-compose.yml` (or try `docker-compose.simple.yml` if having issues)
 
 2. **Configure and Deploy**
    - Add environment variables as above
    - Click "Deploy the stack"
+
+### Option 3: Using Simple Compose (Recommended for Portainer Issues)
+
+If you're experiencing MongoDB connection issues:
+
+1. **Use Simple Compose File**
+   - In Portainer, choose "Web editor"
+   - Copy contents from `docker-compose.simple.yml` instead
+   - This version has simplified health checks and startup order
+
+2. **Deploy with Restart Strategy**
+   - Deploy the stack
+   - If app container fails, it will restart automatically
+   - MongoDB should be ready on subsequent restarts
 
 ### Option 3: Manual Docker Commands
 
@@ -180,19 +194,43 @@ services:
 
 ### Common Issues
 
-1. **App won't start**
+1. **MongoDB Connection Errors (`getaddrinfo EAI_AGAIN mongo`)**
+   - **Cause**: Docker networking issue or containers starting out of order
+   - **Solutions**:
+     ```bash
+     # Option 1: Use the simple compose file
+     docker-compose -f docker-compose.simple.yml up -d
+     
+     # Option 2: Restart the stack in correct order
+     docker-compose down
+     docker-compose up -d mongo
+     # Wait 30 seconds for MongoDB to be ready
+     docker-compose up -d lalogistics-app
+     
+     # Option 3: Check network connectivity
+     docker exec lalogistics-web ping mongo
+     ```
+
+2. **App won't start**
    - Check environment variables are set correctly
    - Verify MongoDB is running: `docker logs lalogistics-mongodb`
+   - Check if MongoDB is healthy: `docker exec lalogistics-mongodb mongosh --eval "db.adminCommand('ping')"`
 
-2. **Database connection errors**
+3. **Database connection errors**
    - Ensure MongoDB container is healthy
    - Check network connectivity between containers
+   - Verify containers are on the same network: `docker network ls`
 
-3. **File upload issues**
+4. **File upload issues**
    - Verify uploads volume is mounted correctly
    - Check container permissions
 
-### Useful Commands
+5. **Portainer-Specific Issues**
+   - If using Portainer stacks, try using the simple compose file (`docker-compose.simple.yml`)
+   - Ensure all environment variables are set in Portainer UI
+   - Check that the network is properly created in Portainer
+
+### Diagnostic Commands
 ```bash
 # View all containers
 docker ps -a
