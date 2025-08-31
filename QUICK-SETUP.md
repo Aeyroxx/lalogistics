@@ -1,6 +1,15 @@
 # L&A Logistics Portal - Quick Setup
 
-## 🚀 One-Command Deployment (Recommended)
+## � Prerequisites
+
+**Important:** This application uses an **external MongoDB server** at `192.168.0.140:27017`
+
+Before deployment, ensure:
+- ✅ MongoDB server is running at `192.168.0.140:27017`
+- ✅ Network connectivity between container and MongoDB server
+- ✅ MongoDB accepts connections from your container's IP
+
+## �🚀 One-Command Deployment (Recommended)
 
 For the fastest deployment on your Proxmox LXC container:
 
@@ -13,19 +22,21 @@ wget -O - https://raw.githubusercontent.com/Aeyroxx/lalogistics/master/deploy-pr
 ```
 
 This script will automatically:
-- ✅ Install Node.js, MongoDB, PM2, Git
+- ✅ Install Node.js, PM2, Git (no local MongoDB - uses your external server)
 - ✅ Clone the repository
 - ✅ Install dependencies  
-- ✅ Configure environment with secure secrets
-- ✅ Create admin user
+- ✅ Configure environment for external MongoDB (192.168.0.140:27017)
+- ✅ Create admin user on your MongoDB server
 - ✅ Start the application
 - ✅ Setup Nginx reverse proxy (optional)
 - ✅ Configure firewall
-- ✅ Setup automatic backups
+- ✅ Setup automatic backups of external database
 
 ## 📖 Manual Deployment
 
 If you prefer step-by-step manual deployment, see: [PROXMOX-LXC-DEPLOYMENT.md](PROXMOX-LXC-DEPLOYMENT.md)
+
+For external MongoDB setup details, see: [MONGODB-EXTERNAL-SETUP.md](MONGODB-EXTERNAL-SETUP.md)
 
 ## 🔐 Default Login
 

@@ -46,25 +46,17 @@
    npm --version
    ```
 
-3. **Install MongoDB:**
+3. **Install MongoDB Client Tools (for database management):**
    ```bash
-   # Import MongoDB public GPG key
-   wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
+   # Install MongoDB client tools only (not the server)
+   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+   apt-get install -y mongodb-clients
    
-   # Add MongoDB repository
-   echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-   
-   # Update and install MongoDB
-   apt update
-   apt install -y mongodb-org
-   
-   # Start and enable MongoDB
-   systemctl start mongod
-   systemctl enable mongod
-   
-   # Verify MongoDB is running
-   systemctl status mongod
+   # Test connection to your external MongoDB server
+   mongosh "mongodb://192.168.0.140:27017/lalogistics" --eval "db.runCommand({ping: 1})"
    ```
+   
+   **Note:** This setup uses your existing MongoDB server at `192.168.0.140:27017` instead of installing a local MongoDB instance.
 
 4. **Install PM2 (Process Manager):**
    ```bash
@@ -104,10 +96,12 @@
    ```env
    PORT=3000
    NODE_ENV=production
-   MONGODB_URI=mongodb://localhost:27017/lalogistics
+   MONGODB_URI=mongodb://192.168.0.140:27017/lalogistics
    JWT_SECRET=your_super_secure_jwt_secret_change_this_random_string
    SESSION_SECRET=your_super_secure_session_secret_change_this_random_string
    ```
+
+   **Important:** This configuration uses your external MongoDB server at `192.168.0.140:27017`
 
    **Generate secure secrets:**
    ```bash
@@ -118,15 +112,21 @@
    node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
    ```
 
-### Step 4: Setup MongoDB Database
+### Step 4: Setup Database Connection and Initial Data
 
-1. **Create Database and Initial Admin User:**
+1. **Test MongoDB Connection:**
+   ```bash
+   # Test connection to your external MongoDB server
+   mongosh "mongodb://192.168.0.140:27017/lalogistics" --eval "db.runCommand({ping: 1})"
+   ```
+
+2. **Create Initial Admin User:**
    ```bash
    node utils/seedAdmin.js
    ```
 
    This will create:
-   - Database: `lalogistics`
+   - Database: `lalogistics` (on your external MongoDB server)
    - Admin user: `admin@lalogistics.com` / `admin123`
 
 ### Step 5: Configure PM2 for Production
@@ -236,8 +236,8 @@ nano /etc/systemd/system/lalogistics.service
 ```ini
 [Unit]
 Description=L&A Logistics Portal
-After=network.target mongod.service
-Wants=mongod.service
+After=network.target
+Wants=network.target
 
 [Service]
 Type=simple
@@ -264,17 +264,14 @@ systemctl start lalogistics
 
 ### Step 1: Check Services
 ```bash
-# Check MongoDB
-systemctl status mongod
-
-# Check PM2 processes
+# Check application status
 pm2 status
-
-# Check Nginx (if used)
-systemctl status nginx
 
 # Check application logs
 pm2 logs lalogistics
+
+# Test MongoDB connection
+mongosh "mongodb://192.168.0.140:27017/lalogistics" --eval "db.runCommand({connectionStatus: 1})"
 ```
 
 ### Step 2: Test Application
@@ -318,8 +315,8 @@ DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="/opt/backups"
 mkdir -p $BACKUP_DIR
 
-# Backup MongoDB
-mongodump --db lalogistics --out $BACKUP_DIR/mongo_$DATE
+# Backup MongoDB from external server
+mongodump --uri="mongodb://192.168.0.140:27017/lalogistics" --out $BACKUP_DIR/mongo_$DATE
 
 # Backup application files
 tar -czf $BACKUP_DIR/app_$DATE.tar.gz /opt/lalogistics
@@ -376,14 +373,14 @@ pm2 restart lalogistics
 
 ### Database Management
 ```bash
-# MongoDB shell
-mongosh lalogistics
+# Connect to your external MongoDB
+mongosh "mongodb://192.168.0.140:27017/lalogistics"
 
 # Check database size
-mongosh --eval "db.stats()"
+mongosh "mongodb://192.168.0.140:27017/lalogistics" --eval "db.stats()"
 
 # Create database backup
-mongodump --db lalogistics --out /tmp/backup
+mongodump --uri="mongodb://192.168.0.140:27017/lalogistics" --out /tmp/backup
 ```
 
 ## Troubleshooting
@@ -417,14 +414,14 @@ mongodump --db lalogistics --out /tmp/backup
 
 3. **Database connection issues:**
    ```bash
-   # Check MongoDB status
-   systemctl status mongod
+   # Test connection to external MongoDB
+   mongosh "mongodb://192.168.0.140:27017/lalogistics" --eval "db.runCommand({ping: 1})"
    
-   # Check MongoDB logs
-   tail -f /var/log/mongodb/mongod.log
+   # Check network connectivity to MongoDB server
+   ping 192.168.0.140
    
-   # Restart MongoDB
-   systemctl restart mongod
+   # Check if MongoDB port is accessible
+   telnet 192.168.0.140 27017
    ```
 
 ## Security Recommendations

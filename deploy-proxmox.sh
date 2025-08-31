@@ -36,15 +36,9 @@ curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 apt-get install -y nodejs
 check_command "Node.js installation"
 
-# Install MongoDB
-echo "📦 Installing MongoDB..."
-wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-apt update
-apt install -y mongodb-org
-systemctl start mongod
-systemctl enable mongod
-check_command "MongoDB installation"
+# Note: Using external MongoDB server - skipping local MongoDB installation
+echo "📡 Using external MongoDB server (will be configured in .env)"
+echo "✅ Skipping local MongoDB installation"
 
 # Install PM2 and Git
 echo "📦 Installing PM2 and Git..."
@@ -77,13 +71,14 @@ if [ ! -f .env ]; then
     JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
     SESSION_SECRET=$(node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
     
-    # Update .env file
+    # Update .env file with your MongoDB server
     sed -i "s/your_jwt_secret_here_replace_with_random_string/$JWT_SECRET/" .env
     sed -i "s/your_session_secret_here_replace_with_random_string/$SESSION_SECRET/" .env
     sed -i "s/NODE_ENV=development/NODE_ENV=production/" .env
-    sed -i "s|mongodb://mongo:27017|mongodb://localhost:27017|" .env
+    # Keep your existing MongoDB URI (192.168.0.140:27017)
     
     echo "✅ Environment file created with secure secrets"
+    echo "📡 Using your MongoDB server at: 192.168.0.140:27017"
 else
     echo "✅ Environment file already exists"
 fi
@@ -93,8 +88,9 @@ echo "📋 Creating log directory..."
 mkdir -p /var/log/lalogistics
 check_command "Log directory creation"
 
-# Initialize database with admin user
-echo "👤 Creating initial admin user..."
+# Initialize database with admin user (using external MongoDB)
+echo "👤 Creating initial admin user on external MongoDB..."
+echo "📡 Connecting to MongoDB at 192.168.0.140:27017..."
 node utils/seedAdmin.js
 check_command "Admin user creation"
 
@@ -157,8 +153,8 @@ DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="/opt/backups"
 mkdir -p $BACKUP_DIR
 
-# Backup MongoDB
-mongodump --db lalogistics --out $BACKUP_DIR/mongo_$DATE
+# Backup MongoDB from external server
+mongodump --uri="mongodb://192.168.0.140:27017/lalogistics" --out $BACKUP_DIR/mongo_$DATE
 
 # Backup application files
 tar -czf $BACKUP_DIR/app_$DATE.tar.gz /opt/lalogistics
@@ -183,7 +179,7 @@ echo ""
 echo "📋 Deployment Summary:"
 echo "  • Application: L&A Logistics Portal"
 echo "  • Location: /opt/lalogistics"
-echo "  • Database: MongoDB (lalogistics)"
+echo "  • Database: External MongoDB (192.168.0.140:27017)"
 echo "  • Process Manager: PM2"
 if [ "$install_nginx" = "y" ] || [ "$install_nginx" = "Y" ]; then
     echo "  • Web Server: Nginx (reverse proxy)"
