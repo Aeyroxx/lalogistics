@@ -314,7 +314,7 @@ const applyLabelsToExistingEntries = async (req, res) => {
 };
 
 module.exports = {
-  getSettingsPage,
+  getSettings,
   createSellerLabel,
   updateSellerLabel,
   deleteSellerLabel,

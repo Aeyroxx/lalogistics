@@ -1,6 +1,6 @@
 const express = require('express');
 const {
-  getSettingsPage,
+  getSettings,
   createSellerLabel,
   updateSellerLabel,
   deleteSellerLabel,
@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(protect);
 
 // Settings page
-router.get('/', admin, getSettingsPage);
+router.get('/', admin, getSettings);
 
 // Seller label management
 router.post('/seller-labels', admin, createSellerLabel);
