@@ -1,0 +1,215 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-check-circle me-2 text-success"></i> 
+            <%= importType %> Import Results
+          </h3>
+          <div class="card-tools">
+            <a href="/audit/list" class="btn btn-sm btn-primary">
+              <i class="fas fa-list me-1"></i> View Audit List
+            </a>
+            <a href="/audit/import/spx" class="btn btn-sm btn-secondary">
+              <i class="fas fa-upload me-1"></i> Import More
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          
+          <!-- Summary Cards -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="card bg-primary text-white">
+                <div class="card-body">
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <h3 class="mb-0"><%= results.totalTasks %></h3>
+                      <p class="mb-0 small">Total Tasks</p>
+                    </div>
+                    <div class="ms-3">
+                      <i class="fas fa-tasks fa-2x opacity-50"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-success text-white">
+                <div class="card-body">
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <h3 class="mb-0"><%= results.importedCount %></h3>
+                      <p class="mb-0 small">Successfully Imported</p>
+                    </div>
+                    <div class="ms-3">
+                      <i class="fas fa-check fa-2x opacity-50"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-warning text-white">
+                <div class="card-body">
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <h3 class="mb-0"><%= results.skippedCount %></h3>
+                      <p class="mb-0 small">Skipped</p>
+                    </div>
+                    <div class="ms-3">
+                      <i class="fas fa-skip-forward fa-2x opacity-50"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-danger text-white">
+                <div class="card-body">
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <h3 class="mb-0"><%= results.errorCount %></h3>
+                      <p class="mb-0 small">Errors</p>
+                    </div>
+                    <div class="ms-3">
+                      <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Success Message -->
+          <% if (results.importedCount > 0) { %>
+            <div class="alert alert-success">
+              <i class="fas fa-check-circle me-2"></i>
+              <strong>Import Completed Successfully!</strong>
+              <%= results.importedCount %> audit entries have been imported and are now available in your audit list.
+              All imported entries will have their earnings calculated automatically based on SPX commercial terms.
+            </div>
+          <% } %>
+
+          <!-- Duplicates Section -->
+          <% if (results.duplicates && results.duplicates.length > 0) { %>
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-copy me-2 text-warning"></i> 
+                  Skipped Duplicates (<%= results.skippedCount %> total)
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted">These entries were skipped because they already exist in the database:</p>
+                <ul class="list-unstyled">
+                  <% results.duplicates.forEach(function(duplicate) { %>
+                    <li class="mb-1">
+                      <i class="fas fa-info-circle text-info me-1"></i>
+                      <code><%= duplicate %></code>
+                    </li>
+                  <% }) %>
+                </ul>
+                <% if (results.hasMoreDuplicates) { %>
+                  <p class="text-muted small mt-2">
+                    <i class="fas fa-ellipsis-h me-1"></i>
+                    And <%= results.skippedCount - results.duplicates.length %> more duplicates...
+                  </p>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Errors Section -->
+          <% if (results.errors && results.errors.length > 0) { %>
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-exclamation-triangle me-2 text-danger"></i> 
+                  Import Errors (<%= results.errorCount %> total)
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted">The following errors occurred during import:</p>
+                <ul class="list-unstyled">
+                  <% results.errors.forEach(function(error) { %>
+                    <li class="mb-1">
+                      <i class="fas fa-times-circle text-danger me-1"></i>
+                      <code><%= error %></code>
+                    </li>
+                  <% }) %>
+                </ul>
+                <% if (results.hasMoreErrors) { %>
+                  <p class="text-muted small mt-2">
+                    <i class="fas fa-ellipsis-h me-1"></i>
+                    And <%= results.errorCount - results.errors.length %> more errors...
+                  </p>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Next Steps -->
+          <% if (results.importedCount > 0) { %>
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-lightbulb me-2 text-info"></i> 
+                  Next Steps
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-check me-1 text-success"></i> What Was Done:</h6>
+                    <ul class="small">
+                      <li>Created <%= results.importedCount %> SPX audit entries</li>
+                      <li>Automatically calculated earnings using SPX rules</li>
+                      <li>Set SLA compliance to "Yes" (can be edited)</li>
+                      <li>Used sender ID as both seller and shop ID</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-edit me-1 text-primary"></i> You May Want To:</h6>
+                    <ul class="small">
+                      <li>Review and update shop IDs if needed</li>
+                      <li>Verify SLA compliance status</li>
+                      <li>Add any applicable penalties</li>
+                      <li>Update notes or additional details</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <a href="/audit/list?type=spx" class="btn btn-primary me-2">
+                    <i class="fas fa-list me-1"></i> View SPX Audits
+                  </a>
+                  <a href="/audit/reports?type=spx" class="btn btn-info">
+                    <i class="fas fa-chart-bar me-1"></i> View Reports
+                  </a>
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Import Another File -->
+          <% if (results.errorCount === 0 || results.importedCount > 0) { %>
+            <div class="text-center mt-4">
+              <a href="/audit/import/spx" class="btn btn-outline-primary">
+                <i class="fas fa-upload me-1"></i> Import Another File
+              </a>
+            </div>
+          <% } %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.card .bg-primary .opacity-50 { opacity: 0.5; }
+.card .bg-success .opacity-50 { opacity: 0.5; }
+.card .bg-warning .opacity-50 { opacity: 0.5; }
+.card .bg-danger .opacity-50 { opacity: 0.5; }
+</style>

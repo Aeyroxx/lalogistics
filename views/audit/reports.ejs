@@ -3,42 +3,63 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-chart-bar me-2"></i> Reports</h3>
+          <h3 class="card-title"><i class="fas fa-chart-bar me-2"></i> Audit Reports</h3>
         </div>
         <div class="card-body">
           <div class="report-filters">
-            <form method="GET" action="/audit/reports">
+            <form method="GET" action="/audit/reports" id="reportForm">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-3">
                   <div class="form-group">
-                    <label for="period" class="form-label">Report Type</label>
-                    <select id="period" name="period" class="form-control">
-                      <option value="daily" <%= (period === 'daily' || reportType === 'daily') ? 'selected' : '' %>>Daily</option>
-                      <option value="weekly" <%= (period === 'weekly' || reportType === 'weekly') ? 'selected' : '' %>>Weekly</option>
-                      <option value="monthly" <%= (period === 'monthly' || reportType === 'monthly') ? 'selected' : '' %>>Monthly</option>
-                      <option value="quarterly" <%= (period === 'quarterly' || reportType === 'quarterly') ? 'selected' : '' %>>Quarterly</option>
-                      <option value="yearly" <%= (period === 'yearly' || reportType === 'yearly') ? 'selected' : '' %>>Yearly</option>
-                    </select>
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" 
+                           value="<%= typeof startDate !== 'undefined' ? startDate : '' %>" required>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" 
+                           value="<%= typeof endDate !== 'undefined' ? endDate : '' %>" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
                   <div class="form-group">
                     <label for="type" class="form-label">Courier Type</label>
                     <select id="type" name="type" class="form-control">
                       <option value="">All Couriers</option>
-                      <option value="spx" <%= (type === 'spx' || courierType === 'SPX') ? 'selected' : '' %>>SPX Express</option>
-                      <option value="flash" <%= (type === 'flash' || courierType === 'Flash') ? 'selected' : '' %>>Flash Express</option>
+                      <option value="spx" <%= (type === 'spx') ? 'selected' : '' %>>SPX Express</option>
+                      <option value="flash" <%= (type === 'flash') ? 'selected' : '' %>>Flash Express</option>
                     </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i> Generate Report
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="row mt-3">
                 <div class="col-md-12">
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search me-2"></i> Generate Report
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('today')">Today</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('week')">This Week</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('month')">This Month</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('quarter')">This Quarter</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('year')">This Year</button>
+                  </div>
+                  <button type="button" class="btn btn-success ms-3" onclick="exportToExcel()" 
+                          <% if (!reportData || !reportData.totalEntries) { %>disabled<% } %>>
+                    <i class="fas fa-file-excel me-1"></i> Export to Excel
                   </button>
-                  <button type="button" class="btn btn-success ms-2" onclick="exportToExcel()">
-                    <i class="fas fa-file-excel me-2"></i> Export to Excel
+                  <button type="button" class="btn btn-danger ms-2" onclick="exportToPDF()" 
+                          <% if (!reportData || !reportData.totalEntries) { %>disabled<% } %>>
+                    <i class="fas fa-file-pdf me-1"></i> Export to PDF
                   </button>
                 </div>
               </div>
@@ -46,53 +67,107 @@
           </div>
 
           <% if (typeof reportData !== 'undefined' && reportData) { %>
+            <!-- Report Title -->
+            <div class="row mt-4 mb-3">
+              <div class="col-md-12">
+                <h4 class="text-center">
+                  <% if (typeof title !== 'undefined' && title) { %>
+                    <%= title %>
+                  <% } else { %>
+                    Report for <%= startDate %> to <%= endDate %>
+                  <% } %>
+                </h4>
+                <hr>
+              </div>
+            </div>
+
+            <!-- Summary Cards -->
             <div class="report-summary">
               <div class="row">
                 <div class="col-md-3">
-                  <div class="audit-summary-item">
-                    <div class="audit-summary-label">Total Entries</div>
-                    <div class="audit-summary-value"><%= reportData.totalEntries || 0 %></div>
+                  <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                      <h3 class="mb-0"><%= reportData.totalEntries || 0 %></h3>
+                      <p class="mb-0">Total Entries</p>
+                      <i class="fas fa-clipboard-list fa-2x opacity-50"></i>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-3">
-                  <div class="audit-summary-item">
-                    <div class="audit-summary-label">Total Parcels</div>
-                    <div class="audit-summary-value"><%= reportData.totalParcels || 0 %></div>
+                  <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                      <h3 class="mb-0"><%= reportData.totalParcels || 0 %></h3>
+                      <p class="mb-0">Total Parcels</p>
+                      <i class="fas fa-boxes fa-2x opacity-50"></i>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-3">
-                  <div class="audit-summary-item">
-                    <div class="audit-summary-label">Delivered Parcels</div>
-                    <div class="audit-summary-value text-success"><%= reportData.deliveredParcels || 0 %></div>
+                  <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                      <h3 class="mb-0"><%= reportData.deliveredParcels || 0 %></h3>
+                      <p class="mb-0">Delivered Parcels</p>
+                      <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-3">
-                  <div class="audit-summary-item">
-                    <div class="audit-summary-label">Total Earnings</div>
-                    <div class="audit-summary-value text-primary">₱<%= reportData.totalEarnings ? reportData.totalEarnings.toFixed(2) : '0.00' %></div>
+                  <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                      <h3 class="mb-0">₱<%= reportData.totalEarnings ? reportData.totalEarnings.toFixed(2) : '0.00' %></h3>
+                      <p class="mb-0">Total Earnings</p>
+                      <i class="fas fa-money-bill-wave fa-2x opacity-50"></i>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6">
+            <!-- Detailed Breakdown -->
+            <div class="row mt-4">
+              <div class="col-md-4">
                 <div class="card">
-                  <div class="card-header">
-                    <h5 class="card-title">Earnings Chart</h5>
-                  </div>
-                  <div class="card-body">
-                    <canvas id="earningsChart" width="400" height="200"></canvas>
+                  <div class="card-body text-center">
+                    <h5 class="card-title text-primary">SPX Express</h5>
+                    <h3 class="text-primary mb-1">₱<%= reportData.spxEarnings ? reportData.spxEarnings.toFixed(2) : '0.00' %></h3>
+                    <p class="text-muted small">
+                      <%= reportData.spxEntries || 0 %> entries • 
+                      <%= reportData.spxParcels || 0 %> parcels
+                    </p>
+                    <div class="progress">
+                      <div class="progress-bar bg-primary" style="width: <%= reportData.totalEarnings > 0 ? Math.round((reportData.spxEarnings / reportData.totalEarnings) * 100) : 0 %>%"></div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="card">
-                  <div class="card-header">
-                    <h5 class="card-title">Parcel Distribution</h5>
+                  <div class="card-body text-center">
+                    <h5 class="card-title text-info">Flash Express</h5>
+                    <h3 class="text-info mb-1">₱<%= reportData.flashEarnings ? reportData.flashEarnings.toFixed(2) : '0.00' %></h3>
+                    <p class="text-muted small">
+                      <%= reportData.flashEntries || 0 %> entries • 
+                      <%= reportData.flashParcels || 0 %> parcels
+                    </p>
+                    <div class="progress">
+                      <div class="progress-bar bg-info" style="width: <%= reportData.totalEarnings > 0 ? Math.round((reportData.flashEarnings / reportData.totalEarnings) * 100) : 0 %>%"></div>
+                    </div>
                   </div>
-                  <div class="card-body">
-                    <canvas id="parcelChart" width="400" height="200"></canvas>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card">
+                  <div class="card-body text-center">
+                    <h5 class="card-title text-success">Success Rate</h5>
+                    <h3 class="text-success mb-1">
+                      <%= reportData.totalParcels > 0 ? Math.round((reportData.deliveredParcels / reportData.totalParcels) * 100) : 0 %>%
+                    </h3>
+                    <p class="text-muted small">
+                      <%= reportData.deliveredParcels || 0 %> of <%= reportData.totalParcels || 0 %> delivered
+                    </p>
+                    <div class="progress">
+                      <div class="progress-bar bg-success" style="width: <%= reportData.totalParcels > 0 ? Math.round((reportData.deliveredParcels / reportData.totalParcels) * 100) : 0 %>%"></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -101,7 +176,12 @@
             <div class="text-center py-5">
               <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
               <h5 class="text-muted">No data to display</h5>
-              <p class="text-muted">Select your report parameters and click "Generate Report" to view data.</p>
+              <p class="text-muted">Select your date range and click "Generate Report" to view data.</p>
+              <div class="mt-3">
+                <button type="button" class="btn btn-outline-primary" onclick="setQuickRange('month')">
+                  <i class="fas fa-calendar me-1"></i> Try This Month
+                </button>
+              </div>
             </div>
           <% } %>
         </div>
@@ -110,62 +190,112 @@
   </div>
 </div>
 
+
 <script>
-function exportToExcel() {
-  // Implementation for Excel export
-  alert('Excel export feature will be implemented soon!');
+// Quick date range functions
+function setQuickRange(range) {
+  const today = new Date();
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  
+  let startDate, endDate;
+  
+  switch(range) {
+    case 'today':
+      startDate = today;
+      endDate = today;
+      break;
+    case 'week':
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - today.getDay() + 1);
+      startDate = monday;
+      endDate = today;
+      break;
+    case 'month':
+      startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      endDate = today;
+      break;
+    case 'quarter':
+      const quarter = Math.floor(today.getMonth() / 3);
+      startDate = new Date(today.getFullYear(), quarter * 3, 1);
+      endDate = today;
+      break;
+    case 'year':
+      startDate = new Date(today.getFullYear(), 0, 1);
+      endDate = today;
+      break;
+  }
+  
+  startDateInput.value = startDate.toISOString().split('T')[0];
+  endDateInput.value = endDate.toISOString().split('T')[0];
 }
 
-<% if (typeof reportData !== 'undefined' && reportData && reportData.chartData) { %>
-// Initialize charts
+// Set default dates to this month
 document.addEventListener('DOMContentLoaded', function() {
-  // Earnings Chart
-  const earningsCtx = document.getElementById('earningsChart').getContext('2d');
-  new Chart(earningsCtx, {
-    type: 'line',
-    data: {
-      labels: <%- JSON.stringify(reportData.chartData.labels) %>,
-      datasets: [{
-        label: 'Earnings (₱)',
-        data: <%- JSON.stringify(reportData.chartData.earnings) %>,
-        borderColor: 'rgb(67, 97, 238)',
-        backgroundColor: 'rgba(67, 97, 238, 0.1)',
-        tension: 0.1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-
-  // Parcel Distribution Chart
-  const parcelCtx = document.getElementById('parcelChart').getContext('2d');
-  new Chart(parcelCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Delivered', 'Failed', 'Returned'],
-      datasets: [{
-        data: [
-          <%= reportData.deliveredParcels || 0 %>,
-          <%= reportData.failedDeliveries || 0 %>,
-          <%= reportData.returnedParcels || 0 %>
-        ],
-        backgroundColor: [
-          'rgba(46, 204, 113, 0.8)',
-          'rgba(231, 76, 60, 0.8)',
-          'rgba(243, 156, 18, 0.8)'
-        ]
-      }]
-    },
-    options: {
-      responsive: true
-    }
-  });
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  
+  if (!startDateInput.value || !endDateInput.value) {
+    setQuickRange('month');
+  }
 });
-<% } %>
+
+// Form validation
+document.getElementById('reportForm').addEventListener('submit', function(e) {
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
+  
+  if (!startDate || !endDate) {
+    e.preventDefault();
+    alert('Please select both start and end dates.');
+    return;
+  }
+  
+  if (new Date(startDate) > new Date(endDate)) {
+    e.preventDefault();
+    alert('Start date cannot be after end date.');
+    return;
+  }
+});
+
+// Export functions - declared in global scope for onclick handlers
+window.exportToExcel = function() {
+  console.log('Excel export button clicked');
+  const hasData = <%= (reportData && reportData.totalEntries > 0) ? 'true' : 'false' %>;
+  
+  if (hasData) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', 'excel');
+    window.location.href = '/audit/reports?' + params.toString();
+  } else {
+    alert('No data to export. Please generate a report first.');
+  }
+};
+
+window.exportToPDF = function() {
+  console.log('PDF export button clicked');
+  const hasData = <%= (reportData && reportData.totalEntries > 0) ? 'true' : 'false' %>;
+  
+  if (hasData) {
+    console.log('Report data available, proceeding with PDF export');
+    const params = new URLSearchParams(window.location.search);
+    const exportUrl = '/audit/export/pdf?' + params.toString();
+    console.log('PDF export URL:', exportUrl);
+    window.location.href = exportUrl;
+  } else {
+    console.log('No report data available for PDF export');
+    alert('No data to export. Please generate a report first.');
+  }
+};
+
+// Verify functions are loaded
+console.log('Export functions loaded:', {
+  exportToExcel: typeof window.exportToExcel,
+  exportToPDF: typeof window.exportToPDF
+});
 </script>
+
+<style>
+.opacity-50 { opacity: 0.5; }
+.progress { height: 6px; }
+</style>

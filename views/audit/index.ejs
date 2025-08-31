@@ -4,6 +4,13 @@
       <div class="card">
         <div class="card-header">
           <h3 class="card-title"><i class="fas fa-plus-circle me-2"></i> New Audit Entry</h3>
+          <% if (user.role === 'admin') { %>
+            <div class="card-tools">
+              <a href="/audit/import/spx" class="btn btn-sm btn-info">
+                <i class="fas fa-upload me-1"></i> Import SPX Data
+              </a>
+            </div>
+          <% } %>
         </div>
         <div class="card-body">
           <form method="POST" action="/audit">
@@ -33,7 +40,13 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label for="taskId" class="form-label">Task ID / Reference ID <span class="text-danger">*</span></label>
-                    <input type="text" id="taskId" name="taskId" class="form-control" placeholder="Enter Task ID or Reference ID" required>
+                    <div class="input-group">
+                      <input type="text" id="taskId" name="taskId" class="form-control" placeholder="Auto-generated if left blank">
+                      <button type="button" class="btn btn-outline-secondary" onclick="generateTaskId()">
+                        <i class="fas fa-sync-alt"></i> Generate
+                      </button>
+                    </div>
+                    <small class="text-muted">Task ID will be auto-generated when you click Generate or submit</small>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -52,23 +65,33 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label for="numberOfParcels" class="form-label">Number of Parcels <span class="text-danger">*</span></label>
-                    <input type="number" id="numberOfParcels" name="numberOfParcels" class="form-control" min="1" placeholder="Enter number of parcels" required>
+                    <label for="shopName" class="form-label">Shop Name / Customer Name</label>
+                    <input type="text" id="shopName" name="shopName" class="form-control" placeholder="e.g., Jollina Sebastian">
+                    <small class="text-muted">Optional: Customer or shop name for easy identification</small>
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group mb-3">
+                    <label for="numberOfParcels" class="form-label">Number of Parcels <span class="text-danger">*</span></label>
+                    <input type="number" id="numberOfParcels" name="numberOfParcels" class="form-control" min="1" placeholder="Enter number of parcels" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">SLA Compliance</label>
                     <div class="form-check">
                       <input type="checkbox" id="handedOverWithinSLA" name="handedOverWithinSLA" class="form-check-input" value="true">
                       <label for="handedOverWithinSLA" class="form-check-label">
                         Handed over within SLA / On Time Delivery
-                        <small class="text-muted d-block">Check if parcels were delivered/handed over on time for bonus rate</small>
                       </label>
                     </div>
+                    <small class="text-muted">Check if parcels were delivered/handed over on time for bonus rate</small>
                   </div>
                 </div>
+              </div>
+              <div class="row">
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label for="penalties" class="form-label">Penalties (₱)</label>
@@ -165,5 +188,40 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set today's date as default
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('date').value = today;
+  
+  // Auto-generate task ID on page load
+  generateTaskId();
+  
+  // Add form submission handler to ensure Task ID is generated
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const taskIdField = document.getElementById('taskId');
+    if (!taskIdField.value || taskIdField.value.trim() === '') {
+      console.log('Task ID empty on submit, generating...');
+      generateTaskId();
+    }
+  });
 });
+
+// Function to generate Task ID
+function generateTaskId() {
+  console.log('Generating Task ID...');
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const timestamp = now.getTime().toString().slice(-6); // Last 6 digits of timestamp
+  
+  // Generate Task ID pattern: LA-YYYYMMDD-XXXXXX
+  const taskId = `LA-${year}${month}${day}-${timestamp}`;
+  
+  console.log('Generated Task ID:', taskId);
+  document.getElementById('taskId').value = taskId;
+  
+  // Make sure the field is not empty after generation
+  if (document.getElementById('taskId').value) {
+    console.log('Task ID successfully set to:', document.getElementById('taskId').value);
+  } else {
+    console.error('Failed to set Task ID');
+  }
+}
 </script>

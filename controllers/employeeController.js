@@ -146,74 +146,76 @@ const updateEmployeeProfile = async (req, res) => {
     // Find or create employee profile
     let profile = await EmployeeProfile.findOne({ user: req.params.id });
 
-    const profileData = {
-      user: req.params.id,
-      phoneNumber: phone,
-      position: position,
-      department: department,
-      address: {
-        street: address,
-        city: '',
-        state: '',
-        zipCode: '',
-        country: ''
-      },
-      backgroundInfo: {
-        education: '',
-        previousEmployment: '',
-        skills: []
-      },
-      personalInfo: {
-        birthdate: null,
-        gender: '',
-        civilStatus: '',
-        nationality: ''
-      },
-      socialMedia: {
-        facebook: '',
-        twitter: '',
-        instagram: '',
-        linkedin: ''
-      },
-      parentsInfo: {
-        fatherName: '',
-        fatherOccupation: '',
-        fatherContact: '',
-        motherName: '',
-        motherOccupation: '',
-        motherContact: ''
-      },
-      tinId: '',
-      identificationCards: {
-        primary: '',
-        secondary: ''
-      },
-      updatedAt: Date.now()
-    };
-
     if (profile) {
       console.log('Updating existing profile for user:', req.params.id);
       // Only update the fields that were provided, keep existing data for others
       const updateFields = {
         phoneNumber: phone,
+        position: position,
+        department: department,
         'address.street': address,
         updatedAt: Date.now()
       };
       
-      // Only update position and department if provided
-      if (position) updateFields.position = position;
-      if (department) updateFields.department = department;
-
-      profile = await EmployeeProfile.findOneAndUpdate(
-        { user: req.params.id },
-        { $set: updateFields },
-        { new: true }
-      );
-      console.log('Profile updated successfully');
+      // Only update non-empty fields
+      Object.keys(updateFields).forEach(key => {
+        if (updateFields[key] === '' && key !== 'updatedAt') {
+          delete updateFields[key];
+        }
+      });
+      
+      await EmployeeProfile.findByIdAndUpdate(profile._id, updateFields);
+      console.log('Profile updated with fields:', updateFields);
     } else {
       console.log('Creating new profile for user:', req.params.id);
-      profile = await EmployeeProfile.create(profileData);
-      console.log('Profile created successfully');
+      const profileData = {
+        user: req.params.id,
+        phoneNumber: phone,
+        position: position,
+        department: department,
+        address: {
+          street: address,
+          city: '',
+          state: '',
+          zipCode: '',
+          country: ''
+        },
+        backgroundInfo: {
+          education: '',
+          previousEmployment: '',
+          skills: []
+        },
+        personalInfo: {
+          birthdate: null,
+          gender: '',
+          civilStatus: '',
+          nationality: ''
+        },
+        socialMedia: {
+          facebook: '',
+          twitter: '',
+          instagram: '',
+          linkedin: ''
+        },
+        parentsInfo: {
+          fatherName: '',
+          fatherOccupation: '',
+          fatherContact: '',
+          motherName: '',
+          motherOccupation: '',
+          motherContact: ''
+        },
+        tinId: '',
+        identificationCards: {
+          primary: '',
+          secondary: ''
+        },
+        updatedAt: Date.now()
+      };
+      
+      profile = new EmployeeProfile(profileData);
+      await profile.save();
+      console.log('New profile created');
     }
 
     console.log('Redirecting to employee profile...');

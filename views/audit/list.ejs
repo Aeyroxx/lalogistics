@@ -5,12 +5,72 @@
         <div class="card-header">
           <h3 class="card-title"><i class="fas fa-list me-2"></i> Audit Entries</h3>
           <div class="ms-auto">
+            <% if (user.role === 'admin') { %>
+              <div class="btn-group me-2" role="group">
+                <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown">
+                  <i class="fas fa-upload me-1"></i> Import
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="/audit/import/spx">
+                    <i class="fas fa-file-import me-1"></i> SPX Automation Data
+                  </a></li>
+                </ul>
+              </div>
+            <% } %>
             <a href="/audit" class="btn btn-primary">
               <i class="fas fa-plus me-2"></i> New Entry
             </a>
           </div>
         </div>
         <div class="card-body">
+          <!-- Search Form -->
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <form method="GET" action="/audit/list" class="d-flex gap-3 align-items-end">
+                <div class="flex-grow-1">
+                  <label for="search" class="form-label">Search Audits</label>
+                  <div class="search-input-container position-relative">
+                    <input type="text" class="form-control" id="search" name="search" 
+                           placeholder="Search by Seller ID, Shop Name, Task ID, or Notes... (Use commas for multiple Seller IDs: SELLER001,SELLER002)" 
+                           value="<%= typeof search !== 'undefined' ? search : '' %>"
+                           autocomplete="off">
+                    <div id="searchTags" class="search-tags mt-2"></div>
+                    <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+                  </div>
+                  <div class="form-text">
+                    <small>
+                      <i class="fas fa-info-circle"></i> 
+                      For multiple Seller IDs, separate with commas (e.g., SELLER001,SELLER002,SELLER003)
+                    </small>
+                  </div>
+                </div>
+                <div>
+                  <label for="dateFrom" class="form-label">From</label>
+                  <input type="date" class="form-control" id="dateFrom" name="dateFrom" 
+                         value="<%= typeof dateFrom !== 'undefined' ? dateFrom : '' %>">
+                </div>
+                <div>
+                  <label for="dateTo" class="form-label">To</label>
+                  <input type="date" class="form-control" id="dateTo" name="dateTo" 
+                         value="<%= typeof dateTo !== 'undefined' ? dateTo : '' %>">
+                </div>
+                <div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                  </button>
+                  <a href="/audit/list" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-times"></i> Clear
+                  </a>
+                  <% if (user.role === 'admin') { %>
+                  <button type="button" class="btn btn-success ms-2" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                  </button>
+                  <% } %>
+                </div>
+              </form>
+            </div>
+          </div>
+
           <% if (audits && audits.length > 0) { %>
             <div class="table-responsive">
               <table class="table table-hover">
@@ -41,13 +101,18 @@
                             <strong>Task:</strong> <%= audit.taskId %><br>
                             <strong>Seller:</strong> <%= audit.sellerId %><br>
                             <strong>Shop:</strong> <%= audit.shopId %>
+                            <% if (audit.shopName) { %>
+                              <br><strong>Name:</strong> <%= audit.shopName %>
+                            <% } %>
                           </small>
                         <% } else { %>
                           <!-- Flash Express Details -->
                           <small>
-                            <strong>Delivered:</strong> <%= audit.deliveredParcels || 0 %><br>
-                            <strong>Failed:</strong> <%= audit.failedDeliveries || 0 %><br>
-                            <strong>Returned:</strong> <%= audit.returnedParcels || 0 %>
+                            <strong>Task:</strong> <%= audit.taskId %><br>
+                            <strong>Seller:</strong> <%= audit.sellerId %>
+                            <% if (audit.shopName) { %>
+                              <br><strong>Name:</strong> <%= audit.shopName %>
+                            <% } %>
                           </small>
                         <% } %>
                       </td>
@@ -123,3 +188,234 @@
     </div>
   </div>
 </div>
+
+<script>
+function exportToPDF() {
+  // Get current search parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const exportParams = new URLSearchParams();
+  
+  // Copy relevant parameters
+  if (urlParams.get('search')) exportParams.set('search', urlParams.get('search'));
+  if (urlParams.get('startDate')) exportParams.set('startDate', urlParams.get('startDate'));
+  if (urlParams.get('endDate')) exportParams.set('endDate', urlParams.get('endDate'));
+  if (urlParams.get('type')) exportParams.set('type', urlParams.get('type'));
+  
+  // Build export URL
+  const exportUrl = '/audit/export/pdf?' + exportParams.toString();
+  
+  // Open in new window to trigger download
+  window.open(exportUrl, '_blank');
+}
+
+// Enhanced multi-seller search functionality
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔍 Multi-seller search initialized');
+  
+  const searchInput = document.getElementById('search');
+  const searchTags = document.getElementById('searchTags');
+  const autocompleteDropdown = document.getElementById('autocompleteDropdown');
+  
+  if (!searchInput) {
+    console.error('❌ Search input not found');
+    return;
+  }
+  
+  if (!searchTags) {
+    console.error('❌ Search tags container not found');
+    return;
+  }
+  
+  console.log('✓ Search elements found');
+  
+  let sellerLabels = []; // Will be populated from API
+  
+  // Load seller labels for autocomplete
+  async function loadSellerLabels() {
+    try {
+      const response = await fetch('/settings/api/seller-labels');
+      const data = await response.json();
+      sellerLabels = data;
+    } catch (error) {
+      console.log('Could not load seller labels for autocomplete');
+    }
+  }
+  
+  // Initialize seller labels
+  loadSellerLabels();
+  
+  // Update search tags display
+  function updateSearchTags() {
+    const searchValue = searchInput.value.trim();
+    searchTags.innerHTML = '';
+    
+    console.log('🏷️ Updating search tags for:', searchValue);
+    
+    if (searchValue.includes(',')) {
+      const sellerIds = searchValue.split(',').map(id => id.trim()).filter(id => id.length > 0);
+      
+      console.log('📋 Parsed seller IDs:', sellerIds);
+      
+      if (sellerIds.length > 1) {
+        searchTags.innerHTML = '<small class="text-muted mb-2 d-block">Searching for multiple Seller IDs:</small>';
+        
+        sellerIds.forEach((sellerId, index) => {
+          const tag = document.createElement('span');
+          tag.className = 'badge bg-primary me-2 mb-1';
+          tag.innerHTML = `
+            <i class="fas fa-tag me-1"></i>${sellerId}
+            <button type="button" class="btn-close btn-close-white ms-1" style="font-size: 10px;" onclick="removeSellerTag('${sellerId}')"></button>
+          `;
+          searchTags.appendChild(tag);
+        });
+        
+        console.log('✓ Created', sellerIds.length, 'search tags');
+      }
+    } else if (searchValue.length > 0) {
+      console.log('🔍 Single search term:', searchValue);
+    }
+  }
+  
+  // Remove a seller tag
+  window.removeSellerTag = function(sellerIdToRemove) {
+    const currentValue = searchInput.value;
+    const sellerIds = currentValue.split(',').map(id => id.trim()).filter(id => id.length > 0);
+    const updatedIds = sellerIds.filter(id => id !== sellerIdToRemove);
+    searchInput.value = updatedIds.join(', ');
+    updateSearchTags();
+  };
+  
+  // Show autocomplete suggestions
+  function showAutocomplete(searchTerm) {
+    if (!searchTerm || searchTerm.length < 2) {
+      autocompleteDropdown.style.display = 'none';
+      return;
+    }
+    
+    const matches = sellerLabels.filter(label => 
+      label.sellerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      label.shopName.toLowerCase().includes(searchTerm.toLowerCase())
+    ).slice(0, 5);
+    
+    if (matches.length === 0) {
+      autocompleteDropdown.style.display = 'none';
+      return;
+    }
+    
+    autocompleteDropdown.innerHTML = matches.map(label => `
+      <div class="autocomplete-item" onclick="selectAutocomplete('${label.sellerId}')">
+        <strong>${label.sellerId}</strong> - ${label.shopName}
+      </div>
+    `).join('');
+    
+    autocompleteDropdown.style.display = 'block';
+  }
+  
+  // Select autocomplete item
+  window.selectAutocomplete = function(sellerId) {
+    const currentValue = searchInput.value.trim();
+    
+    if (currentValue.includes(',')) {
+      // Multi-seller mode - add to existing list
+      const sellerIds = currentValue.split(',').map(id => id.trim()).filter(id => id.length > 0);
+      if (!sellerIds.includes(sellerId)) {
+        sellerIds.push(sellerId);
+        searchInput.value = sellerIds.join(', ');
+      }
+    } else {
+      // Single search mode - check if we want to start multi-mode
+      if (currentValue && currentValue !== sellerId) {
+        searchInput.value = currentValue + ', ' + sellerId;
+      } else {
+        searchInput.value = sellerId;
+      }
+    }
+    
+    autocompleteDropdown.style.display = 'none';
+    updateSearchTags();
+  };
+  
+  // Event listeners
+  searchInput.addEventListener('input', function() {
+    updateSearchTags();
+    
+    // Show autocomplete for the current typing term
+    const value = this.value;
+    const lastCommaIndex = value.lastIndexOf(',');
+    const currentTerm = lastCommaIndex >= 0 ? value.substring(lastCommaIndex + 1).trim() : value.trim();
+    
+    showAutocomplete(currentTerm);
+  });
+  
+  searchInput.addEventListener('blur', function() {
+    // Delay hiding to allow click on autocomplete
+    setTimeout(() => {
+      autocompleteDropdown.style.display = 'none';
+    }, 200);
+  });
+  
+  // Initialize tags on page load
+  updateSearchTags();
+  
+  // Add form submission logging
+  const form = document.querySelector('form[action="/audit/list"]');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const searchValue = searchInput.value.trim();
+      console.log('📤 Form submission - Search value:', searchValue);
+      
+      if (searchValue.includes(',')) {
+        const sellerIds = searchValue.split(',').map(id => id.trim()).filter(id => id.length > 0);
+        console.log('📤 Multi-seller search submitted:', sellerIds);
+      }
+    });
+    console.log('✓ Form submission logging enabled');
+  }
+  
+  console.log('🚀 Multi-seller search fully initialized');
+});
+</script>
+
+<style>
+.search-input-container {
+  position: relative;
+}
+
+.search-tags {
+  min-height: 20px;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.autocomplete-item:hover {
+  background-color: #f8f9fa;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.badge .btn-close {
+  --bs-btn-close-color: rgba(255,255,255,0.8);
+  --bs-btn-close-hover-color: rgba(255,255,255,1);
+}
+</style>

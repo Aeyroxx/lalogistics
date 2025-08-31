@@ -13,6 +13,10 @@ const FlashExpressAuditSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  shopName: {
+    type: String,
+    default: ''
+  },
   numberOfParcels: {
     type: Number,
     required: true,

@@ -4,43 +4,10 @@
     <p class="dashboard-subtitle">Welcome back, <%= user.name %></p>
   </div>
   
-  <!-- Stats Row -->
-  <div class="stats-row">
-    <!-- Employee Count -->
-    <div class="card">
-      <div class="stat-card">
-        <div class="card-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-title">Total Employees</div>
-          <div class="stat-value"><%= employeeCount %></div>
-          <div class="stat-change stat-increase">
-            <i class="fas fa-arrow-up me-1"></i> Active workforce
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Lost Parcels Count -->
-    <div class="card">
-      <div class="stat-card">
-        <div class="card-icon" style="background-color: rgba(231, 76, 60, 0.1); color: var(--danger-color);">
-          <i class="fas fa-box"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-title">Lost Parcels</div>
-          <div class="stat-value"><%= lostParcelCount %></div>
-          <div class="stat-change <%= lostParcelCount > 0 ? 'stat-decrease' : 'stat-increase' %>">
-            <i class="fas <%= lostParcelCount > 0 ? 'fa-exclamation-circle' : 'fa-check-circle' %> me-1"></i> 
-            <%= lostParcelCount > 0 ? 'Needs attention' : 'All good' %>
-          </div>
-        </div>
-      </div>
-    </div>
-    
+  <!-- Primary Stats Row -->
+  <div class="stats-row-main">
     <!-- Today's Earnings -->
-    <div class="card">
+    <div class="card stat-card-main">
       <div class="stat-card">
         <div class="card-icon" style="background-color: rgba(46, 204, 113, 0.1); color: var(--success-color);">
           <i class="fas fa-coins"></i>
@@ -56,7 +23,7 @@
     </div>
     
     <!-- Month's Earnings -->
-    <div class="card">
+    <div class="card stat-card-main">
       <div class="stat-card">
         <div class="card-icon" style="background-color: rgba(52, 152, 219, 0.1); color: var(--info-color);">
           <i class="fas fa-chart-line"></i>
@@ -67,6 +34,94 @@
           <div class="stat-change stat-increase">
             <i class="fas fa-calendar-alt me-1"></i> Running total
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee Count -->
+    <div class="card stat-card-main">
+      <div class="stat-card">
+        <div class="card-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Total Employees</div>
+          <div class="stat-value"><%= employeeCount %></div>
+          <div class="stat-change stat-increase">
+            <i class="fas fa-arrow-up me-1"></i> Active workforce
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Lost Parcels Count -->
+    <div class="card stat-card-main">
+      <div class="stat-card">
+        <div class="card-icon" style="background-color: rgba(231, 76, 60, 0.1); color: var(--danger-color);">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Lost Parcels</div>
+          <div class="stat-value"><%= lostParcelCount %></div>
+          <div class="stat-change <%= lostParcelCount > 0 ? 'stat-decrease' : 'stat-increase' %>">
+            <i class="fas <%= lostParcelCount > 0 ? 'fa-exclamation-circle' : 'fa-check-circle' %> me-1"></i> 
+            <%= lostParcelCount > 0 ? 'Needs attention' : 'All good' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Stats Row - Period Metrics -->
+  <div class="stats-row-secondary">
+    <!-- Week's Earnings -->
+    <div class="card stat-card-secondary">
+      <div class="stat-card-compact">
+        <div class="card-icon-small" style="background-color: rgba(230, 126, 34, 0.1); color: #e67e22;">
+          <i class="fas fa-calendar-week"></i>
+        </div>
+        <div class="stat-content-compact">
+          <div class="stat-title-small">This Week</div>
+          <div class="stat-value-small">₱<%= weekEarnings.toFixed(2) %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quarter's Earnings -->
+    <div class="card stat-card-secondary">
+      <div class="stat-card-compact">
+        <div class="card-icon-small" style="background-color: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+          <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-content-compact">
+          <div class="stat-title-small">This Quarter</div>
+          <div class="stat-value-small">₱<%= quarterEarnings.toFixed(2) %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year's Earnings -->
+    <div class="card stat-card-secondary">
+      <div class="stat-card-compact">
+        <div class="card-icon-small" style="background-color: rgba(142, 68, 173, 0.1); color: #8e44ad;">
+          <i class="fas fa-calendar"></i>
+        </div>
+        <div class="stat-content-compact">
+          <div class="stat-title-small">This Year</div>
+          <div class="stat-value-small">₱<%= yearEarnings.toFixed(2) %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Time Earnings -->
+    <div class="card stat-card-secondary">
+      <div class="stat-card-compact">
+        <div class="card-icon-small" style="background-color: rgba(155, 89, 182, 0.1); color: #9b59b6;">
+          <i class="fas fa-infinity"></i>
+        </div>
+        <div class="stat-content-compact">
+          <div class="stat-title-small">All Time</div>
+          <div class="stat-value-small">₱<%= allTimeEarnings.toFixed(2) %></div>
         </div>
       </div>
     </div>

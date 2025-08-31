@@ -1,0 +1,38 @@
+[
+  {
+    "receive_task_id": "DRT2025080601TEST",
+    "complete_time": "2025-08-06 10:30:00",
+    "status": "Done",
+    "sender_data": {
+      "1257601721": 25,
+      "1234567890": 18,
+      "9876543210": 32
+    },
+    "total_quantity": 75,
+    "sender_count": 3,
+    "processed_at": "2025-08-06T10:30:00.000Z"
+  },
+  {
+    "receive_task_id": "DRT2025080602TEST",
+    "complete_time": "2025-08-06 14:15:00",
+    "status": "Done",
+    "sender_data": {
+      "5555666677": 15,
+      "8888999900": 42
+    },
+    "total_quantity": 57,
+    "sender_count": 2,
+    "processed_at": "2025-08-06T14:15:00.000Z"
+  },
+  {
+    "receive_task_id": "DRT2025080603TEST",
+    "complete_time": "2025-08-06 16:45:00",
+    "status": "Pending",
+    "sender_data": {
+      "1111222233": 8
+    },
+    "total_quantity": 8,
+    "sender_count": 1,
+    "processed_at": "2025-08-06T16:45:00.000Z"
+  }
+]

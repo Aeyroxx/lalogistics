@@ -56,6 +56,14 @@
                          value="<%= audit.sellerId %>" required>
                 </div>
               </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="shopName" class="form-label">Shop Name / Customer Name</label>
+                  <input type="text" id="shopName" name="shopName" class="form-control" 
+                         value="<%= audit.shopName || '' %>" placeholder="e.g., Jollina Sebastian">
+                  <small class="text-muted">Customer or shop name for easy identification</small>
+                </div>
+              </div>
             </div>
 
             <div class="row">

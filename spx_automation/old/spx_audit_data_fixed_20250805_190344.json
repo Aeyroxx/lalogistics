@@ -1,0 +1,305 @@
+[
+  {
+    "receive_task_id": "DRT2025080501SEA",
+    "complete_time": "2025-08-05 18:55:03",
+    "status": "Done",
+    "sender_data": {
+      "NO_DATA": 0
+    },
+    "total_quantity": 0,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:56:28.353146"
+  },
+  {
+    "receive_task_id": "DRT2025080501OLM",
+    "complete_time": "2025-08-05 18:54:24",
+    "status": "Done",
+    "sender_data": {
+      "NO_DATA": 0
+    },
+    "total_quantity": 0,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:56:37.169723"
+  },
+  {
+    "receive_task_id": "DRT2025080501W8O",
+    "complete_time": "2025-08-05 18:53:56",
+    "status": "Done",
+    "sender_data": {
+      "311312007": 6
+    },
+    "total_quantity": 6,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:56:48.345465"
+  },
+  {
+    "receive_task_id": "DRT2025080501KQ4",
+    "complete_time": "2025-08-05 18:48:33",
+    "status": "Done",
+    "sender_data": {
+      "49903867": 4
+    },
+    "total_quantity": 4,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:56:57.666000"
+  },
+  {
+    "receive_task_id": "DRT2025080501OK4",
+    "complete_time": "2025-08-05 18:48:15",
+    "status": "Done",
+    "sender_data": {
+      "NO_DATA": 0
+    },
+    "total_quantity": 0,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:57:05.753793"
+  },
+  {
+    "receive_task_id": "DRT2025080501W66",
+    "complete_time": "2025-08-05 18:38:50",
+    "status": "Done",
+    "sender_data": {
+      "56575108": 1
+    },
+    "total_quantity": 1,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:57:14.276345"
+  },
+  {
+    "receive_task_id": "DRT2025080501KNR",
+    "complete_time": "2025-08-05 18:34:30",
+    "status": "Done",
+    "sender_data": {
+      "1155288526": 4
+    },
+    "total_quantity": 4,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:57:23.026922"
+  },
+  {
+    "receive_task_id": "DRT2025080501W47",
+    "complete_time": "2025-08-05 18:28:54",
+    "status": "Done",
+    "sender_data": {
+      "135339956": 41,
+      "629866151": 1,
+      "626605510": 4,
+      "587203438": 11
+    },
+    "total_quantity": 57,
+    "sender_count": 4,
+    "processed_at": "2025-08-05T18:57:52.751476"
+  },
+  {
+    "receive_task_id": "DRT2025080501OG2",
+    "complete_time": "2025-08-05 18:20:49",
+    "status": "Done",
+    "sender_data": {
+      "1401599312": 1,
+      "1297127243": 2,
+      "1354738987": 1
+    },
+    "total_quantity": 4,
+    "sender_count": 3,
+    "processed_at": "2025-08-05T18:58:01.893272"
+  },
+  {
+    "receive_task_id": "DRT2025080501W14",
+    "complete_time": "2025-08-05 18:20:30",
+    "status": "Done",
+    "sender_data": {
+      "910930938": 32,
+      "965886198": 2,
+      "910936895": 29,
+      "910941135": 2,
+      "1350463971": 1,
+      "1401599312": 9,
+      "1297127243": 65,
+      "910946898": 8,
+      "1354738987": 12,
+      "414866255": 3,
+      "923680266": 3,
+      "801392982": 2,
+      "1224107098": 4,
+      "436557953": 2,
+      "601750765": 1,
+      "923826025": 1,
+      "1354738984": 1,
+      "1219087799": 1
+    },
+    "total_quantity": 178,
+    "sender_count": 18,
+    "processed_at": "2025-08-05T18:59:21.655609"
+  },
+  {
+    "receive_task_id": "DRT2025080501ODY",
+    "complete_time": "2025-08-05 18:09:27",
+    "status": "Done",
+    "sender_data": {
+      "NO_DATA": 0
+    },
+    "total_quantity": 0,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T18:59:29.446815"
+  },
+  {
+    "receive_task_id": "DRT2025080501S5J",
+    "complete_time": "2025-08-05 18:09:07",
+    "status": "Done",
+    "sender_data": {
+      "1297127243": 47,
+      "910936895": 8,
+      "1354738987": 31,
+      "910946898": 2,
+      "910930938": 5,
+      "1354738984": 3,
+      "801392982": 1,
+      "1401599312": 1,
+      "1350463971": 2,
+      "965886198": 1,
+      "923680266": 2
+    },
+    "total_quantity": 103,
+    "sender_count": 11,
+    "processed_at": "2025-08-05T19:00:18.171354"
+  },
+  {
+    "receive_task_id": "DRT2025080501VZJ",
+    "complete_time": "2025-08-05 18:03:11",
+    "status": "Done",
+    "sender_data": {
+      "1354738987": 8,
+      "1297127243": 20,
+      "1401599312": 1,
+      "311312007": 1,
+      "923680266": 1
+    },
+    "total_quantity": 31,
+    "sender_count": 5,
+    "processed_at": "2025-08-05T19:00:37.442572"
+  },
+  {
+    "receive_task_id": "DRT2025080501VZH",
+    "complete_time": "2025-08-05 18:01:39",
+    "status": "Done",
+    "sender_data": {
+      "NO_DATA": 0
+    },
+    "total_quantity": 0,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:00:45.515599"
+  },
+  {
+    "receive_task_id": "DRT2025080501VZA",
+    "complete_time": "2025-08-05 18:01:30",
+    "status": "Done",
+    "sender_data": {
+      "1297127243": 11,
+      "923680266": 3,
+      "1401599312": 2,
+      "1354738987": 4
+    },
+    "total_quantity": 20,
+    "sender_count": 4,
+    "processed_at": "2025-08-05T19:00:57.913937"
+  },
+  {
+    "receive_task_id": "DRT2025080501S4L",
+    "complete_time": "2025-08-05 18:00:33",
+    "status": "Done",
+    "sender_data": {
+      "NO_DATA": 0
+    },
+    "total_quantity": 0,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:01:05.988959"
+  },
+  {
+    "receive_task_id": "DRT2025080501KHA",
+    "complete_time": "2025-08-05 17:59:26",
+    "status": "Done",
+    "sender_data": {
+      "NO_DATA": 0
+    },
+    "total_quantity": 0,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:01:13.717164"
+  },
+  {
+    "receive_task_id": "DRT2025080501KGC",
+    "complete_time": "2025-08-05 17:58:07",
+    "status": "Done",
+    "sender_data": {
+      "47975609": 37
+    },
+    "total_quantity": 37,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:01:34.353408"
+  },
+  {
+    "receive_task_id": "DRT2025080501KFV",
+    "complete_time": "2025-08-05 17:55:45",
+    "status": "Done",
+    "sender_data": {
+      "311312007": 2
+    },
+    "total_quantity": 2,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:01:42.896036"
+  },
+  {
+    "receive_task_id": "DRT2025080501VRS",
+    "complete_time": "2025-08-05 17:35:14",
+    "status": "Done",
+    "sender_data": {
+      "1277383464": 59
+    },
+    "total_quantity": 59,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:02:13.395013"
+  },
+  {
+    "receive_task_id": "DRT2025080401JZA",
+    "complete_time": "2025-08-05 16:51:24",
+    "status": "Done",
+    "sender_data": {
+      "1257601721": 3
+    },
+    "total_quantity": 3,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:02:22.090534"
+  },
+  {
+    "receive_task_id": "DRT2025080401VEC",
+    "complete_time": "2025-08-05 16:50:19",
+    "status": "Done",
+    "sender_data": {
+      "910946898": 6,
+      "910936895": 22,
+      "910930938": 15,
+      "1219087799": 4,
+      "1297127243": 74,
+      "1401599312": 6,
+      "801392982": 1,
+      "965886198": 1,
+      "1354738987": 14,
+      "1354738984": 1,
+      "1350463971": 2,
+      "923680266": 4
+    },
+    "total_quantity": 150,
+    "sender_count": 12,
+    "processed_at": "2025-08-05T19:03:31.277438"
+  },
+  {
+    "receive_task_id": "DRT2025080401JS2",
+    "complete_time": "2025-08-05 16:27:07",
+    "status": "Done",
+    "sender_data": {
+      "1425583186": 2
+    },
+    "total_quantity": 2,
+    "sender_count": 1,
+    "processed_at": "2025-08-05T19:03:39.614403"
+  }
+]

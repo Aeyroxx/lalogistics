@@ -1,0 +1,532 @@
+<% contentFor('title', 'Settings') %>
+
+<% contentFor('head') %>
+<style>
+    .settings-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .settings-card {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border: 1px solid #e3e6f0;
+    }
+    
+    .seller-label-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .seller-label-item:hover {
+        background: #e9ecef;
+        border-color: #007bff;
+    }
+    
+    .seller-info {
+        flex-grow: 1;
+    }
+    
+    .seller-id {
+        font-weight: bold;
+        color: #007bff;
+        font-size: 16px;
+    }
+    
+    .shop-name {
+        color: #6c757d;
+        margin-left: 15px;
+        font-size: 14px;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-sm {
+        padding: 8px 16px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+    
+    .search-box {
+        margin-bottom: 25px;
+    }
+    
+    .search-box input {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 12px 15px;
+    }
+    
+    .modal-content {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px 10px 0 0;
+        border-bottom: none;
+    }
+    
+    .modal-header .btn-close {
+        filter: invert(1);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 10px 12px;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+</style>
+<% contentFor('head') %>
+
+<div class="settings-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-cog me-2"></i> Admin Settings</h2>
+            <p class="text-muted mb-0">Manage seller labels and system configuration</p>
+        </div>
+    </div>
+
+    <!-- Seller ID Labels Management -->
+    <div class="settings-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="mb-1"><i class="fas fa-tags me-2"></i> Seller ID Labels</h4>
+                <p class="text-muted mb-0">Map seller IDs to shop names for better organization</p>
+            </div>
+            <div class="btn-group" role="group">
+                <% if (sellerLabels && sellerLabels.length > 0) { %>
+                    <button type="button" class="btn btn-outline-success" onclick="applyLabelsToExistingEntries()" id="applyLabelsBtn">
+                        <i class="fas fa-sync me-2"></i> Apply to Existing Entries
+                    </button>
+                <% } %>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLabelModal">
+                    <i class="fas fa-plus me-2"></i> Add New Label
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-box">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" id="searchLabels" class="form-control" placeholder="Search by Seller ID or Shop Name...">
+            </div>
+        </div>
+
+        <!-- Labels List -->
+        <div id="labelsList">
+            <% if (sellerLabels && sellerLabels.length > 0) { %>
+                <% sellerLabels.forEach(label => { %>
+                    <div class="seller-label-item" data-seller-id="<%= label.sellerId %>" data-shop-name="<%= label.shopName %>">
+                        <div class="seller-info">
+                            <div class="seller-id"><%= label.sellerId %></div>
+                            <div class="shop-name"><%= label.shopName %></div>
+                        </div>
+                        <div class="actions">
+                            <button type="button" class="btn btn-outline-primary btn-sm edit-label" 
+                                    data-id="<%= label._id %>" 
+                                    data-seller-id="<%= label.sellerId %>" 
+                                    data-shop-name="<%= label.shopName %>"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editModal">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm delete-label" 
+                                    data-id="<%= label._id %>"
+                                    data-seller-id="<%= label.sellerId %>">
+                                <i class="fas fa-trash me-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="empty-state">
+                    <i class="fas fa-tags fa-4x"></i>
+                    <h5 class="mt-3">No seller labels configured yet</h5>
+                    <p>Add labels to automatically map seller IDs to shop names in audit entries.</p>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLabelModal">
+                        <i class="fas fa-plus me-2"></i> Add Your First Label
+                    </button>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Add Label Modal -->
+<div class="modal fade" id="addLabelModal" tabindex="-1" aria-labelledby="addLabelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addLabelModalLabel">
+                    <i class="fas fa-plus me-2"></i> Add New Seller Label
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addLabelForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="addSellerId" class="form-label">
+                            <i class="fas fa-id-badge me-1"></i> Seller ID
+                        </label>
+                        <input type="text" class="form-control" id="addSellerId" name="sellerId" required 
+                               placeholder="e.g., SELLER001">
+                        <div class="form-text">Enter the unique seller identifier</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addShopName" class="form-label">
+                            <i class="fas fa-store me-1"></i> Shop Name
+                        </label>
+                        <input type="text" class="form-control" id="addShopName" name="shopName" required 
+                               placeholder="e.g., My Awesome Shop">
+                        <div class="form-text">Enter the display name for this seller</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Add Label
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Label Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">
+                    <i class="fas fa-edit me-2"></i> Edit Seller Label
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editLabelForm">
+                <input type="hidden" id="editLabelId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editSellerId" class="form-label">
+                            <i class="fas fa-id-badge me-1"></i> Seller ID
+                        </label>
+                        <input type="text" class="form-control" id="editSellerId" name="sellerId" required>
+                        <div class="form-text">Update the seller identifier</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editShopName" class="form-label">
+                            <i class="fas fa-store me-1"></i> Shop Name
+                        </label>
+                        <input type="text" class="form-control" id="editShopName" name="shopName" required>
+                        <div class="form-text">Update the display name for this seller</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Update Label
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<% contentFor('scripts') %>
+<script>
+console.log('Settings page loaded - Enhanced version');
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing settings functionality');
+    
+    // Initialize modals
+    const addModal = new bootstrap.Modal(document.getElementById('addLabelModal'));
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    
+    console.log('Modals initialized:', { addModal, editModal });
+    
+    // Search functionality
+    const searchInput = document.getElementById('searchLabels');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.seller-label-item');
+            console.log('Searching for:', searchTerm, 'in', items.length, 'items');
+            
+            items.forEach(item => {
+                const sellerId = item.dataset.sellerId?.toLowerCase() || '';
+                const shopName = item.dataset.shopName?.toLowerCase() || '';
+                
+                if (sellerId.includes(searchTerm) || shopName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Add label form submission
+    const addForm = document.getElementById('addLabelForm');
+    if (addForm) {
+        addForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Add label form submitted');
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Adding...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(this);
+            const data = {
+                sellerId: formData.get('sellerId').trim(),
+                shopName: formData.get('shopName').trim()
+            };
+            
+            console.log('Submitting data:', data);
+            
+            try {
+                const response = await fetch('/settings/seller-labels', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                console.log('Add response:', result);
+                
+                if (response.ok) {
+                    addModal.hide();
+                    showAlert('success', 'Label added successfully!');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert('danger', result.message || 'Error adding label');
+                }
+            } catch (error) {
+                console.error('Add error:', error);
+                showAlert('danger', 'Network error: ' + error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // Edit label buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-label')) {
+            const button = e.target.closest('.edit-label');
+            const id = button.dataset.id;
+            const sellerId = button.dataset.sellerId;
+            const shopName = button.dataset.shopName;
+            
+            console.log('Edit button clicked:', { id, sellerId, shopName });
+            
+            document.getElementById('editLabelId').value = id;
+            document.getElementById('editSellerId').value = sellerId;
+            document.getElementById('editShopName').value = shopName;
+        }
+        
+        if (e.target.closest('.delete-label')) {
+            const button = e.target.closest('.delete-label');
+            const id = button.dataset.id;
+            const sellerId = button.dataset.sellerId;
+            
+            if (confirm(`Are you sure you want to delete the label for "${sellerId}"?`)) {
+                deleteLabel(id);
+            }
+        }
+    });
+
+    // Edit label form submission
+    const editForm = document.getElementById('editLabelForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Edit label form submitted');
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Updating...';
+            submitBtn.disabled = true;
+            
+            const id = document.getElementById('editLabelId').value;
+            const formData = new FormData(this);
+            const data = {
+                sellerId: formData.get('sellerId').trim(),
+                shopName: formData.get('shopName').trim()
+            };
+            
+            console.log('Updating data:', { id, data });
+            
+            try {
+                const response = await fetch(`/settings/seller-labels/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                console.log('Update response:', result);
+                
+                if (response.ok) {
+                    editModal.hide();
+                    showAlert('success', 'Label updated successfully!');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert('danger', result.message || 'Error updating label');
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                showAlert('danger', 'Network error: ' + error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // Delete label function
+    async function deleteLabel(id) {
+        console.log('Deleting label:', id);
+        
+        try {
+            const response = await fetch(`/settings/seller-labels/${id}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            console.log('Delete response:', result);
+            
+            if (response.ok) {
+                showAlert('success', 'Label deleted successfully!');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showAlert('danger', result.message || 'Error deleting label');
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            showAlert('danger', 'Network error: ' + error.message);
+        }
+    }
+
+    // Show alert function
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.parentNode.removeChild(alertDiv);
+            }
+        }, 5000);
+    }
+    
+    // Apply labels to existing entries
+    window.applyLabelsToExistingEntries = async function() {
+        console.log('Applying labels to existing entries...');
+        
+        const applyBtn = document.getElementById('applyLabelsBtn');
+        const originalText = applyBtn ? applyBtn.innerHTML : 'Apply to Existing Entries';
+        
+        if (applyBtn) {
+            applyBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Applying...';
+            applyBtn.disabled = true;
+        }
+        
+        try {
+            const response = await fetch('/settings/apply-labels', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const result = await response.json();
+            console.log('Apply labels response:', result);
+            
+            if (response.ok) {
+                const message = `
+                    <strong>Labels applied successfully!</strong><br>
+                    • Total entries updated: ${result.totalEntriesUpdated}<br>
+                    • SPX entries: ${result.totalSpxUpdated}<br>
+                    • Flash Express entries: ${result.totalFlashUpdated}<br>
+                    • Labels processed: ${result.labelsProcessed}
+                `;
+                showAlert('success', message);
+            } else {
+                showAlert('danger', result.message || 'Error applying labels');
+            }
+        } catch (error) {
+            console.error('Apply labels error:', error);
+            showAlert('danger', 'Network error: ' + error.message);
+        } finally {
+            if (applyBtn) {
+                applyBtn.innerHTML = originalText;
+                applyBtn.disabled = false;
+            }
+        }
+    };
+    
+    console.log('Settings page initialization complete');
+});
+</script>
+<% contentFor('scripts') %>

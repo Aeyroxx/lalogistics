@@ -39,6 +39,12 @@
                   <td><strong>Seller ID:</strong></td>
                   <td><%= audit.sellerId %></td>
                 </tr>
+                <% if (audit.shopName) { %>
+                  <tr>
+                    <td><strong>Shop Name:</strong></td>
+                    <td><%= audit.shopName %></td>
+                  </tr>
+                <% } %>
                 <% if (type === 'spx') { %>
                   <tr>
                     <td><strong>Shop ID:</strong></td>

@@ -64,6 +64,7 @@ const employeeRoutes = require('./routes/employees');
 const auditRoutes = require('./routes/audit');
 const lostParcelRoutes = require('./routes/lostParcels');
 const dashboardRoutes = require('./routes/dashboard');
+const settingsRoutes = require('./routes/settings');
 
 // Health check endpoint for Docker/Portainer
 app.get('/health', (req, res) => {
@@ -80,6 +81,7 @@ app.use('/employees', employeeRoutes);
 app.use('/audit', auditRoutes);
 app.use('/lost-parcels', lostParcelRoutes);
 app.use('/dashboard', dashboardRoutes);
+app.use('/settings', settingsRoutes);
 
 // Home route
 app.get('/', (req, res) => {
